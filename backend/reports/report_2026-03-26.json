@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "report_id": "RPT-20260326",
+    "generated_at": "2026-03-26T20:22:52.006246",
+    "target_date": "2026-03-26"
+  },
+  "summary": {
+    "total_incidents": 5000,
+    "resolved_incidents": 0,
+    "active_incidents": 5000,
+    "severity_distribution": {
+      "Critical": 6,
+      "Medium": 446,
+      "Low": 3093,
+      "High": 1455
+    },
+    "top_attack_vectors": {
+      "Normal": 2366,
+      "Brute Force": 913,
+      "Exfiltration": 705,
+      "DDoS": 574,
+      "Port Scan": 442
+    },
+    "top_offenders": {
+      "45.33.19.35": 24,
+      "45.33.18.28": 22,
+      "45.33.18.37": 20,
+      "45.33.19.28": 19,
+      "45.33.12.21": 19
+    },
+    "top_targets": {
+      "10.0.5.67": 73,
+      "10.0.5.18": 72,
+      "10.0.5.37": 71,
+      "10.0.5.83": 70,
+      "10.0.5.43": 69
+    }
+  },
+  "critical_threats": [
+    {
+      "id": "0b853c6e-daf7-4ba9-b32f-e8210fd70108",
+      "timestamp": 

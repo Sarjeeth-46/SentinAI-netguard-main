@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+  File "D:\project\SentinAI-netguard-main\main.py", line 7, in <module>
+    from app.api.api_gateway import app as api_router
+  File "D:\project\SentinAI-netguard-main\app\api\api_gateway.py", line 38, in <module>
+    from app.services.ip_reputation import ip_reputation_manager
+  File "D:\project\SentinAI-netguard-main\app\services\ip_reputation.py", line 27, in <module>
+    from app.core.config import get_redis_client
+ImportError: cannot import name 'get_redis_client' from 'app.core.config' (D:\project\SentinAI-netguard-main\app\core\config.py)

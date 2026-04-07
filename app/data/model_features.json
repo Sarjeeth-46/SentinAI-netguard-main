@@ -1,0 +1,34 @@
+[
+  {
+    "name": "total_l_fwd_packets",
+    "value": 0.44593944624844123
+  },
+  {
+    "name": "packet_size",
+    "value": 0.26664572645888457
+  },
+  {
+    "name": "dest_port",
+    "value": 0.2514771165973976
+  },
+  {
+    "name": "country_code",
+    "value": 0.023630610681271393
+  },
+  {
+    "name": "protocol_num",
+    "value": 0.010678776947291295
+  },
+  {
+    "name": "chaos_factor",
+    "value": 0.0016283230667140443
+  },
+  {
+    "name": "flow_duration",
+    "value": 0.0
+  },
+  {
+    "name": "total_fwd_packets",
+    "value": 0.0
+  }
+]

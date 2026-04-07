@@ -1,0 +1,27 @@
+{
+  "overall_status": "FAIL",
+  "tested_endpoints": [
+    "/api/system/bootstrap",
+    "/api/auth/login (valid)",
+    "/api/analytics/summary",
+    "/api/threats/{id}/block",
+    "/api/reports/generate",
+    "/api/reports/{date}",
+    "Security SQLi",
+    "Security XSS",
+    "Security Unauth"
+  ],
+  "failures": [
+    {
+      "endpoint": "/api/auth/login",
+      "error": "('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+    }
+  ],
+  "security_issues": [],
+  "performance_warnings": [
+    "/api/system/bootstrap took 2.07s",
+    "/api/auth/login (valid) took 2.31s",
+    "/api/analytics/summary took 2.13s"
+  ],
+  "recommendations": []
+}

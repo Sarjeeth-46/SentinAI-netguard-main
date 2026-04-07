@@ -1,0 +1,194 @@
+{
+  "metadata": {
+    "report_id": "RPT-20260225",
+    "generated_at": "2026-02-25T14:01:37.747435",
+    "target_date": "2026-02-25"
+  },
+  "summary": {
+    "total_incidents": 10,
+    "resolved_incidents": 0,
+    "active_incidents": 10,
+    "severity_distribution": {
+      "Critical": 6,
+      "Medium": 4
+    },
+    "top_attack_vectors": {
+      "DDoS": 6,
+      "Port Scan": 4
+    },
+    "top_offenders": {
+      "192.168.1.100": 2,
+      "192.168.1.101": 2,
+      "192.168.1.102": 2,
+      "192.168.1.103": 2,
+      "192.168.1.104": 2
+    },
+    "top_targets": {
+      "10.0.0.5": 10
+    }
+  },
+  "critical_threats": [
+    {
+      "id": "9d669c52-a31e-44b9-8d3f-c3872a16a2fc",
+      "timestamp": "2026-02-25 11:39:49",
+      "type": "DDoS",
+      "source": "192.168.1.100",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "0b2be3c4-2393-470c-a2ac-bdd9e24d006b",
+      "timestamp": "2026-02-25 11:39:49",
+      "type": "DDoS",
+      "source": "192.168.1.102",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "e767c023-dd06-4c5e-998f-f592b9251977",
+      "timestamp": "2026-02-25 11:39:49",
+      "type": "DDoS",
+      "source": "192.168.1.104",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "497c1456-e32f-4ac9-a644-b58d0efe95f3",
+      "timestamp": "2026-02-25 11:29:03",
+      "type": "DDoS",
+      "source": "192.168.1.100",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "18374354-1451-446b-ab7b-372e39cc46ad",
+      "timestamp": "2026-02-25 11:29:03",
+      "type": "DDoS",
+      "source": "192.168.1.102",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "445da67b-ab6d-4d3e-95ed-17e6752eb702",
+      "timestamp": "2026-02-25 11:29:03",
+      "type": "DDoS",
+      "source": "192.168.1.104",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    }
+  ],
+  "detailed_log": [
+    {
+      "id": "9d669c52-a31e-44b9-8d3f-c3872a16a2fc",
+      "timestamp": "2026-02-25 11:39:49",
+      "type": "DDoS",
+      "source": "192.168.1.100",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "63d6182c-2d4f-4af8-a942-9571aaa65b98",
+      "timestamp": "2026-02-25 11:39:49",
+      "type": "Port Scan",
+      "source": "192.168.1.101",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 45,
+      "severity": "Medium"
+    },
+    {
+      "id": "0b2be3c4-2393-470c-a2ac-bdd9e24d006b",
+      "timestamp": "2026-02-25 11:39:49",
+      "type": "DDoS",
+      "source": "192.168.1.102",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "a62d973a-2f09-448d-8d20-2d698be6662b",
+      "timestamp": "2026-02-25 11:39:49",
+      "type": "Port Scan",
+      "source": "192.168.1.103",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 45,
+      "severity": "Medium"
+    },
+    {
+      "id": "e767c023-dd06-4c5e-998f-f592b9251977",
+      "timestamp": "2026-02-25 11:39:49",
+      "type": "DDoS",
+      "source": "192.168.1.104",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "497c1456-e32f-4ac9-a644-b58d0efe95f3",
+      "timestamp": "2026-02-25 11:29:03",
+      "type": "DDoS",
+      "source": "192.168.1.100",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "b7ecc4fc-5134-48da-87ef-b273925c2dcf",
+      "timestamp": "2026-02-25 11:29:03",
+      "type": "Port Scan",
+      "source": "192.168.1.101",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 45,
+      "severity": "Medium"
+    },
+    {
+      "id": "18374354-1451-446b-ab7b-372e39cc46ad",
+      "timestamp": "2026-02-25 11:29:03",
+      "type": "DDoS",
+      "source": "192.168.1.102",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    },
+    {
+      "id": "a09b2565-519a-4237-9127-5d5519f40f84",
+      "timestamp": "2026-02-25 11:29:03",
+      "type": "Port Scan",
+      "source": "192.168.1.103",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 45,
+      "severity": "Medium"
+    },
+    {
+      "id": "445da67b-ab6d-4d3e-95ed-17e6752eb702",
+      "timestamp": "2026-02-25 11:29:03",
+      "type": "DDoS",
+      "source": "192.168.1.104",
+      "target": "10.0.0.5",
+      "status": "Active",
+      "risk_score": 85,
+      "severity": "Critical"
+    }
+  ]
+}

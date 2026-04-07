@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy Application code
+COPY app/ ./app/
+COPY scripts/run_log_collector.py ./scripts/
+
+# Non-root user
+RUN addgroup --system appgroup && adduser --system --group appuser
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+CMD ["python", "scripts/run_log_collector.py"]

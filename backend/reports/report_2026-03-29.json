@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "report_id": "RPT-20260329",
+    "generated_at": "2026-03-29T21:59:56.521409",
+    "target_date": "2026-03-29"
+  },
+  "summary": {
+    "total_incidents": 5,
+    "resolved_incidents": 0,
+    "active_incidents": 5,
+    "severity_distribution": {
+      "Low": 3,
+      "Critical": 2
+    },
+    "top_attack_vectors": {
+      "Port Scan": 2,
+      "DDoS": 2,
+      "Test": 1
+    },
+    "top_offenders": {
+      "99.88.77.66": 2,
+      "11.22.33.44": 2,
+      "1.1.1.1": 1
+    },
+    "top_targets": {
+      "null": 3,
+      "10.0.5.50": 2
+    }
+  },
+  "critical_threats": [
+    {
+      "id": "3d3feb3a-c6bd-4180-8894-7e06d2554de2",
+      "timestamp": "2026-03-29T16:07:12.329845+00:00Z",
+      "type": "DDoS",
+      "source": "11.22.33.44",
+      "target": "10.0.5.50",
+      "status": "Active",
+      "risk_score": 87.5,
+      "severity": "Critical"
+    },
+    {
+      "id": "308bca3c-a48e-4693-be6c-f57414c0e551",
+      "timestamp": "2026-03-29T16:01:07.825828+00:00Z",
+      "type": "DDoS",
+      "source": "11.22.33.44",
+      "target": "10.0.5.50",
+      "status": "Active",
+      "risk_score": 87.5,
+      "severity": "Critical"
+    }
+  ],
+  "detailed_log": [
+    {
+      "id": "b521c123-05d4-4d3b-9b9a-a36c458f000f",
+      "timestamp": "2026-03-29T16:07:19.719521+00:00Z",
+      "type": "Port Scan",
+      "source": "99.88.77.66",
+      "target": null,
+      "status": "Active",
+      "risk_score": 0.0,
+      "severity": "Low"
+    },
+    {
+      "id": "3d3feb3a-c6bd-4180-8894-7e06d2554de2",
+      "timestamp": "2026-03-29T16:07:12.329845+00:00Z",
+      "type": "DDoS",
+      "source": "11.22.33.44",
+      "target": "10.0.5.50",
+      "status": "Active",
+      "risk_score": 87.5,
+      "severity": "Critical"
+    },
+    {
+      "id": "6cd164f4-4440-4879-bd65-9b480d294a09",
+      "timestamp": "2026-03-29T16:01:14.929369+00:00Z",
+      "type": "Port Scan",
+      "source": "99.88.77.66",
+      "target": null,
+      "status": "Active",
+      "risk_score": 0.0,
+      "severity": "Low"
+    },
+    {
+      "id": "308bca3c-a48e-4693-be6c-f57414c0e551",
+      "timestamp": "2026-03-29T16:01:07.825828+00:00Z",
+      "type": "DDoS",
+      "source": "11.22.33.44",
+      "target": "10.0.5.50",
+      "status": "Active",
+      "risk_score": 87.5,
+      "severity": "Critical"
+    },
+    {
+      "id": "d87a1b1b-975f-4a99-a43f-c0cd78836d59",
+      "timestamp": "2026-03-29T15:55:55.143104+00:00Z",
+      "type": "Test",
+      "source": "1.1.1.1",
+      "target": null,
+      "status": "Active",
+      "risk_score": 0.0,
+      "severity": "Low"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+# Environment
+.env
+.venv
+__pycache__
+*.pyc
+
+# Large Model Artifacts (Exceeds GitHub size limits)
+backend/*.pkl
+backend/model_real.pkl
+backend/model.pkl
+
+# Temporary Data
+backend/threats.json
+backend/training_data.csv
+Training data/
+
+# Build artifacts
+frontend/dist
+node_modules
+.vscode

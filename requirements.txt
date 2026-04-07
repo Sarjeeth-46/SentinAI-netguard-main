@@ -1,0 +1,32 @@
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pandas==2.2.2
+numpy==2.0.0
+scikit-learn==1.5.0
+joblib==1.4.2
+pymongo==4.6.1
+python-dotenv==1.0.1
+imbalanced-learn==0.12.3
+requests==2.31.0
+asyncssh==2.13.2 # High performance async SSH
+aiohttp==3.9.5 # Async HTTP
+scapy==2.5.0
+httpx==0.26.0
+python-multipart==0.0.9
+paramiko==3.4.0
+python-jose==3.3.0
+cryptography>=41.0.0
+bcrypt==4.0.1
+passlib[bcrypt]==1.7.4
+pyjwt==2.8.0
+apscheduler==3.10.4
+pytest==8.0.0
+pytest-asyncio==0.23.5
+redis==5.0.1
+slowapi==0.1.9
+structlog==24.1.0
+motor==3.3.2
+prometheus-client==0.20.0
+prometheus-fastapi-instrumentator==7.0.0
+gunicorn==21.2.0
+python-json-logger==2.0.7

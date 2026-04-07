@@ -1,0 +1,374 @@
+{
+  "overall": "PASS",
+  "passed": 73,
+  "failed": 0,
+  "warned": 0,
+  "timestamp": "2026-03-29T21:37:19.767872",
+  "tests": [
+    {
+      "name": "GET /api/health/liveness -> 200",
+      "status": "PASS",
+      "detail": "0.067s"
+    },
+    {
+      "name": "liveness status='alive'",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "liveness has uptime_seconds",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "GET /api/health/readiness -> 200 or 503",
+      "status": "PASS",
+      "detail": "0.004s"
+    },
+    {
+      "name": "GET /api/health (legacy) -> 200",
+      "status": "PASS",
+      "detail": "0.003s"
+    },
+    {
+      "name": "health threat_engine=ready",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Login with password ok",
+      "status": "PASS",
+      "detail": "len=144"
+    },
+    {
+      "name": "Login bad password -> 401",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Login missing password -> 422",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Login empty body -> 422",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "GET /api/auth/me (auth) -> 200",
+      "status": "PASS",
+      "detail": "0.033s"
+    },
+    {
+      "name": "me.username = admin",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "me.role present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "GET /api/auth/me (no token) -> 401",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "GET /api/dashboard/overview -> 200",
+      "status": "PASS",
+      "detail": "0.344s"
+    },
+    {
+      "name": "overview has total_threats (int)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "overview has risk_levels",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "overview has attack_type_distribution",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "overview has window_minutes",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "overview has computed_at",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "total_threats == sum(risk_levels)",
+      "status": "PASS",
+      "detail": "total=3 derived=3"
+    },
+    {
+      "name": "Dashboard overview without auth -> 401",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "GET /api/dashboard/summary (compat) -> 200/404",
+      "status": "PASS",
+      "detail": "0.835s"
+    },
+    {
+      "name": "GET /api/threats -> 200",
+      "status": "PASS",
+      "detail": "0.202s"
+    },
+    {
+      "name": "threats is a list",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "threats count > 0 (has data)",
+      "status": "PASS",
+      "detail": "count=100"
+    },
+    {
+      "name": "threat has id",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "threat has source_ip",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "threat has risk_score",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "threat has timestamp",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "risk_score in [0,100]",
+      "status": "PASS",
+      "detail": "got 85"
+    },
+    {
+      "name": "GET /api/threats (date filtered today) -> 200",
+      "status": "PASS",
+      "detail": "0.248s count=3"
+    },
+    {
+      "name": "date-filtered threats count > 0",
+      "status": "PASS",
+      "detail": "count=3"
+    },
+    {
+      "name": "GET /api/threats (no auth) -> 401",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "POST /api/telemetry (valid) -> 201",
+      "status": "PASS",
+      "detail": "0.029s"
+    },
+    {
+      "name": "telemetry status=enqueued",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "telemetry count=1",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "POST /api/telemetry (bad key) -> 403",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "POST /api/telemetry (no key) -> 403",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "POST /api/telemetry (empty batch) -> 201",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "empty batch status=ignored",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Ingested event appears in /api/threats",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "GET /api/model/metrics -> 200",
+      "status": "PASS",
+      "detail": "0.004s"
+    },
+    {
+      "name": "metrics has accuracy",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "accuracy in [0,1]",
+      "status": "PASS",
+      "detail": "acc=1.0"
+    },
+    {
+      "name": "GET /api/model/features -> 200",
+      "status": "PASS",
+      "detail": "0.13s"
+    },
+    {
+      "name": "features is non-empty list",
+      "status": "PASS",
+      "detail": "count=5"
+    },
+    {
+      "name": "feature has 'feature' key",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "feature has 'importance' key",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "POST /api/reports/generate -> 200 or 201",
+      "status": "PASS",
+      "detail": "0.193s"
+    },
+    {
+      "name": "GET /api/reports/{today} -> 200",
+      "status": "PASS",
+      "detail": "0.012s"
+    },
+    {
+      "name": "GET /api/reports/1999-01-01 (missing) -> 404",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "POST /api/threats/{id}/resolve -> 200",
+      "status": "PASS",
+      "detail": "0.994s"
+    },
+    {
+      "name": "POST /api/threats/{id}/block -> 200 or 404",
+      "status": "PASS",
+      "detail": "0.005s"
+    },
+    {
+      "name": "Resolve non-existent threat -> 404",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Resolve (no auth) -> 401",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "SQLi in URL path -> not 500",
+      "status": "PASS",
+      "detail": "got none"
+    },
+    {
+      "name": "XSS payload in body -> not 500",
+      "status": "PASS",
+      "detail": "got 200"
+    },
+    {
+      "name": "Unauthenticated /api/threats -> 401",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unauthenticated /api/dashboard/overview -> 401",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Tampered JWT -> 401",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "X-Content-Type-Options header",
+      "status": "PASS",
+      "detail": "nosniff"
+    },
+    {
+      "name": "GET /api/network/topology -> 200 or 404",
+      "status": "PASS",
+      "detail": "0.183s"
+    },
+    {
+      "name": "topology has nodes",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "topology has links",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "GET /api/system/mode -> 200 or 404",
+      "status": "PASS",
+      "detail": "0.004s"
+    },
+    {
+      "name": "mode is local or cloud",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "POST /api/system/mode (invalid) -> not 200",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Telemetry minimal fields -> 201",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unknown endpoint -> 404",
+      "status": "PASS",
+      "detail": "got none"
+    },
+    {
+      "name": "Very long path -> not 500",
+      "status": "PASS",
+      "detail": "got none"
+    },
+    {
+      "name": "5x health check all 200",
+      "status": "PASS",
+      "detail": "ok=5"
+    },
+    {
+      "name": "avg health latency < 1s",
+      "status": "PASS",
+      "detail": "avg=0.006s"
+    }
+  ]
+}

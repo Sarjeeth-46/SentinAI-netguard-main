@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # 1. Reverse Proxy & UI
+  frontend:
+    build: ../frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - aegis-net
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+      - /var/log/nginx
+      - /tmp
+
+  # 2. Application API
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=${MONGO_URI:-mongodb://db:27017}
+      - REDIS_HOST=redis
+      - TARGET_SERVER_IP=${TARGET_SERVER_IP}
+      - TARGET_SSH_USER=${TARGET_SSH_USER}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - aegis-net
+      - aegis-internal
+    restart: unless-stopped
+
+  # 3. Packet Sniffer (Ingestion)
+  sniffer:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.sniffer
+    network_mode: "host" # Needed for scapy sniffing
+    environment:
+      - TARGET_SERVER_IP=${TARGET_SERVER_IP}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # 4. Log Collector (Ingestion)
+  collector:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.collector
+    environment:
+      - TARGET_SERVER_IP=${TARGET_SERVER_IP}
+      - TARGET_SSH_USER=${TARGET_SSH_USER}
+      - TARGET_SSH_KEY_PATH=${TARGET_SSH_KEY_PATH}
+    networks:
+      - aegis-internal
+    depends_on:
+      - backend
+      - redis
+    restart: unless-stopped
+
+  # 5. Database
+  db:
+    image: mongo:6.0
+    expose:
+      - "27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - aegis-internal
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "mongosh --eval 'db.runCommand(\"ping\").ok' localhost:27017/test --quiet" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 6. In-Memory Store (Redis)
+  redis:
+    image: redis:alpine
+    networks:
+      - aegis-internal
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  aegis-net:
+    driver: bridge
+  aegis-internal:
+    driver: bridge
+    internal: true
+
+volumes:
+  mongo-data:

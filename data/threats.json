@@ -1,0 +1,92 @@
+[
+  {
+    "id": "4a784f35-63c6-4938-8bfa-f4b491cf1182",
+    "timestamp": "2026-02-26 06:42:07.527849+00:00",
+    "predicted_label": "DDoS",
+    "risk_score": 85,
+    "source_ip": "192.168.1.100",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  },
+  {
+    "id": "3d5cae84-aac4-4853-8777-7b4550f4a5f5",
+    "timestamp": "2026-02-26 06:42:10.598449+00:00",
+    "predicted_label": "Port Scan",
+    "risk_score": 45,
+    "source_ip": "192.168.1.101",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  },
+  {
+    "id": "8dbe15bf-1eb0-4a52-9ef7-ceee32dd1967",
+    "timestamp": "2026-02-26 06:42:10.601538+00:00",
+    "predicted_label": "DDoS",
+    "risk_score": 85,
+    "source_ip": "192.168.1.102",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  },
+  {
+    "id": "4989a770-eef7-47f8-a623-6bec61f3e6d4",
+    "timestamp": "2026-02-26 06:42:10.604589+00:00",
+    "predicted_label": "Port Scan",
+    "risk_score": 45,
+    "source_ip": "192.168.1.103",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  },
+  {
+    "id": "404a93d8-23fb-4456-bf14-7b5120982586",
+    "timestamp": "2026-02-26 06:42:10.607798+00:00",
+    "predicted_label": "DDoS",
+    "risk_score": 85,
+    "source_ip": "192.168.1.104",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  },
+  {
+    "id": "cc3c0d09-6574-4c0a-b5fe-1a85523dbdb2",
+    "timestamp": "2026-02-26 06:42:10.618491+00:00",
+    "predicted_label": "DDoS",
+    "risk_score": 85,
+    "source_ip": "192.168.1.100",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  },
+  {
+    "id": "a67ef854-1de7-49ed-bc51-bf3a20f94422",
+    "timestamp": "2026-02-26 06:42:10.620536+00:00",
+    "predicted_label": "Port Scan",
+    "risk_score": 45,
+    "source_ip": "192.168.1.101",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  },
+  {
+    "id": "7238aa5e-7ce4-4a2f-b7bb-684cb995021c",
+    "timestamp": "2026-02-26 06:42:10.621874+00:00",
+    "predicted_label": "DDoS",
+    "risk_score": 85,
+    "source_ip": "192.168.1.102",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  },
+  {
+    "id": "cd053db6-eefa-420f-a35d-5c7a8ced5d55",
+    "timestamp": "2026-02-26 06:42:10.623452+00:00",
+    "predicted_label": "Port Scan",
+    "risk_score": 45,
+    "source_ip": "192.168.1.103",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  },
+  {
+    "id": "c60fa702-6e2c-46dd-96d7-c9b337a2a62b",
+    "timestamp": "2026-02-26 06:42:10.626956+00:00",
+    "predicted_label": "DDoS",
+    "risk_score": 85,
+    "source_ip": "192.168.1.104",
+    "destination_ip": "10.0.0.5",
+    "status": "Active"
+  }
+]

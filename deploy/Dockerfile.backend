@@ -1,0 +1,38 @@
+# Stage 1: Build
+FROM python:3.11-slim AS builder
+WORKDIR /app
+
+# System Dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# Stage 2: Runtime
+FROM python:3.11-slim
+WORKDIR /app
+
+# Non-root user
+RUN addgroup --system appgroup && adduser --system --group appuser
+
+# Install dependencies from wheels
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+RUN pip install --no-cache /wheels/* && \
+    rm -rf /wheels /root/.cache
+
+# Copy Application code
+COPY app/ ./app/
+COPY deploy/gunicorn.conf.py ./deploy/
+
+# Permissions
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')" || exit 1
+
+CMD ["gunicorn", "-c", "deploy/gunicorn.conf.py", "app.api.api_gateway:app"]
