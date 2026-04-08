@@ -61,7 +61,15 @@ class DashboardAggregator:
         Fetches events then delegates to the pure computation helper.
         """
         try:
-            events = await cls._fetch_windowed_events()
+            db_handle = persistence_layer.get_db()
+            if db_handle is not None:
+                try:
+                    return await cls._aggregate_overview_from_db(db_handle)
+                except Exception:
+                    logger.exception("DashboardAggregator: DB aggregation failed — attempting fallback")
+                    
+            # Fallback path if DB is unavailable or aggregation fails
+            events = await cls._fetch_windowed_events_fallback()
             return cls.get_overview_from_events(events)
         except Exception:
             logger.exception("DashboardAggregator.get_overview() failed — returning empty overview")
@@ -118,8 +126,9 @@ class DashboardAggregator:
         for event in sorted_events[-_TREND_LIMIT:]:
             ts = event.get("timestamp")
             if ts:
+                parsed_ts = cls._parse_ts(ts)
                 trend_points.append({
-                    "timestamp": ts if isinstance(ts, str) else ts.isoformat(),
+                    "timestamp": parsed_ts.isoformat(),
                     "risk_score": float(event.get("risk_score") or 0),
                 })
 
@@ -137,42 +146,111 @@ class DashboardAggregator:
     # Internal I/O helpers
     # ------------------------------------------------------------------
     @classmethod
-    async def _fetch_windowed_events(cls) -> List[Dict]:
+    async def _aggregate_overview_from_db(cls, db_handle) -> Dict[str, Any]:
         """
-        Fetch events from the DB that fall within the dashboard window.
-        Uses MongoDB aggregate when available, falls back to in-app filtering.
+        Native MongoDB Aggregation Pipeline to calculate accurate KPI metrics 
+        across the entire window instantly, avoiding the 2000 in-memory array cap.
+        """
+        collection = db_handle[config.COLLECTION_NAME]
+        
+        cutoff = datetime.now(timezone.utc) - timedelta(minutes=config.DASHBOARD_WINDOW_MINUTES)
+        cutoff_iso = cutoff.isoformat()
+        
+        query = {
+            "$or": [
+                {"timestamp": {"$gte": cutoff}},
+                {"timestamp": {"$gte": cutoff_iso}},
+            ]
+        }
+        
+        # 1. Native MongoDB Aggregation for KPIs
+        pipeline = [
+            {"$match": query},
+            {
+                "$facet": {
+                    "risk_counts": [
+                        {"$project": {
+                            "risk": {
+                                "$switch": {
+                                    "branches": [
+                                        {"case": {"$gte": [{"$convert": {"input": "$risk_score", "to": "double", "onError": 0.0, "onNull": 0.0}}, _CRITICAL_THRESHOLD]}, "then": "critical"},
+                                        {"case": {"$gte": [{"$convert": {"input": "$risk_score", "to": "double", "onError": 0.0, "onNull": 0.0}}, _HIGH_THRESHOLD]}, "then": "high"},
+                                        {"case": {"$gte": [{"$convert": {"input": "$risk_score", "to": "double", "onError": 0.0, "onNull": 0.0}}, _MEDIUM_THRESHOLD]}, "then": "medium"}
+                                    ],
+                                    "default": "low"
+                                }
+                            }
+                        }},
+                        {"$group": {"_id": "$risk", "count": {"$sum": 1}}}
+                    ],
+                    "attack_types": [
+                        {"$project": {
+                            "label": {"$ifNull": ["$predicted_label", {"$ifNull": ["$label", "Unknown"]}]}
+                        }},
+                        {"$group": {"_id": "$label", "count": {"$sum": 1}}}
+                    ],
+                    "total": [
+                        {"$count": "count"}
+                    ]
+                }
+            }
+        ]
+        
+        aggr_cursor = collection.aggregate(pipeline)
+        aggr_results = await aggr_cursor.to_list(length=1)
+        
+        # Parse Aggregation Results
+        risk_levels = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+        attack_type_distribution = {}
+        total_threats = 0
+        
+        if aggr_results and len(aggr_results) > 0:
+            res = aggr_results[0]
+            for r in res.get("risk_counts", []):
+                risk_levels[r["_id"]] = r["count"]
+            for a in res.get("attack_types", []):
+                attack_type_distribution[a["_id"]] = a["count"]
+            if res.get("total") and len(res["total"]) > 0:
+                total_threats = res["total"][0]["count"]
+                
+        logger.info(f"DashboardAggregator (MongoDB Aggregation): Calculated {total_threats} total threats in window.")
+        
+        # 2. Fetch the latest _TREND_LIMIT events strictly for the trend chart visualization
+        trend_cursor = collection.find(query, {"_id": 0, "timestamp": 1, "risk_score": 1}).sort("timestamp", -1).limit(_TREND_LIMIT)
+        trend_docs = await trend_cursor.to_list(length=_TREND_LIMIT)
+        
+        # Build traffic severity trend (chronological order)
+        trend_points = []
+        trend_docs_chronological = reversed(trend_docs)
+        for event in trend_docs_chronological:
+            ts = event.get("timestamp")
+            if ts:
+                parsed_ts = cls._parse_ts(ts)
+                trend_points.append({
+                    "timestamp": parsed_ts.isoformat(),
+                    "risk_score": float(event.get("risk_score") or 0),
+                })
+                
+        return {
+            "total_threats":             total_threats,
+            "risk_levels":               risk_levels,
+            "attack_type_distribution":  attack_type_distribution,
+            "traffic_severity_trend":    trend_points,
+            # Metadata
+            "window_minutes":            config.DASHBOARD_WINDOW_MINUTES,
+            "computed_at":               datetime.now(timezone.utc).isoformat(),
+        }
+
+    @classmethod
+    async def _fetch_windowed_events_fallback(cls) -> List[Dict]:
+        """
+        Fetch events from JSON fallback that fall within the dashboard window.
         """
         cutoff = datetime.now(timezone.utc) - timedelta(
             minutes=config.DASHBOARD_WINDOW_MINUTES
         )
-        cutoff_iso = cutoff.isoformat()
-
-        db_handle = persistence_layer.get_db()
-
-        # --- Strategy A: MongoDB native query (preferred) ---
-        if db_handle is not None:
-            try:
-                collection = db_handle[config.COLLECTION_NAME]
-                # Support both datetime objects and ISO strings stored in DB
-                query = {
-                    "$or": [
-                        {"timestamp": {"$gte": cutoff}},
-                        {"timestamp": {"$gte": cutoff_iso}},
-                    ]
-                }
-                cursor = collection.find(query, {"_id": 0}).sort("timestamp", -1).limit(2000)
-                docs = await cursor.to_list(length=2000)
-                logger.info(
-                    "DashboardAggregator: fetched %d events from DB (window=%dm)",
-                    len(docs), config.DASHBOARD_WINDOW_MINUTES,
-                )
-                return docs
-            except Exception:
-                logger.exception("DashboardAggregator: DB query failed — falling back to fetch_data()")
-
-        # --- Strategy B: Fetch all + filter in app (fallback) ---
         try:
-            all_events = await persistence_layer.fetch_data(limit=2000) or []
+            all_events = await persistence_layer.fetch_data(limit=5000) or []
             windowed = []
             for event in all_events:
                 ts = cls._parse_ts(event.get("timestamp"))
@@ -196,8 +274,10 @@ class DashboardAggregator:
             return ts_value if ts_value.tzinfo else ts_value.replace(tzinfo=timezone.utc)
         if isinstance(ts_value, str):
             try:
-                # Handle both 'Z' suffix and '+00:00'
-                normalized = ts_value.replace("Z", "+00:00")
+                # Handle 'Z', '+00:00', and erroneous '+00:00Z' formats
+                normalized = ts_value.replace("Z", "")
+                if not ("+" in normalized or ("-" in normalized and normalized.rfind("-") > normalized.rfind("T"))):
+                    normalized += "+00:00"
                 return datetime.fromisoformat(normalized)
             except ValueError:
                 pass

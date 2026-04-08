@@ -20,6 +20,10 @@ class Database:
             self.client = AsyncIOMotorClient(config.MONGO_URI, serverSelectionTimeoutMS=5000)
             await self.client.admin.command('ismaster')
             
+            # Optimize read queries with index
+            db_handle = self.client[config.DB_NAME]
+            await db_handle[config.COLLECTION_NAME].create_index([("timestamp", -1)])
+            
             self.redis = redis.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
             await self.redis.ping()
             

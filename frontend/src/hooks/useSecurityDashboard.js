@@ -246,10 +246,15 @@ export const useSecurityDashboard = (isAuthenticated, dateFilter = null) => {
                     // When a date filter is active, check if this event belongs to that date.
                     // If it does not match the filter date, skip all table/KPI updates.
                     if (activeFilter) {
-                        const eventDateUtc = threat.timestamp
-                            ? new Date(threat.timestamp).toISOString().slice(0, 10)
-                            : null;
-                        if (eventDateUtc !== activeFilter) {
+                        let eventDateUtc = null;
+                        try {
+                            if (threat.timestamp) {
+                                eventDateUtc = new Date(threat.timestamp).toISOString().slice(0, 10);
+                            }
+                        } catch (e) {
+                            console.warn("Invalid timestamp received via WS:", threat.timestamp);
+                        }
+                        if (eventDateUtc && eventDateUtc !== activeFilter) {
                             return;
                         }
                     }

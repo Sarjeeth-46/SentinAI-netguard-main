@@ -44,7 +44,7 @@ class ReportingService:
         end_time   = f"{target_date}T23:59:59+00:00"
 
         # 1. Fetch Events
-        events = await db.query_events_by_timerange(start_time, end_time)
+        events = await db.query_security_events_by_timerange(start_time, end_time)
         
         if not events:
             report_data = {

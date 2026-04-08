@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  backend:
+    image: python:3.10-slim
+    container_name: sentinai-backend
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: >
+      bash -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DEBUG=False
+    restart: always
+
+  frontend:
+    image: node:18-alpine
+    container_name: sentinai-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: >
+      sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: always
+
+  log-generator:
+    image: python:3.10-slim
+    container_name: sentinai-log-generator
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: >
+      bash -c "pip install requests aiohttp && python app/tools/synthetic_log_generator.py 1 3"
+    environment:
+      - API_URL=http://backend:8000/api/telemetry
+    depends_on:
+      - backend
+    restart: always

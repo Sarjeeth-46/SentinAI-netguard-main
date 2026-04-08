@@ -81,12 +81,23 @@ const ReportGenerator = ({ date }) => {
             // Critical Threats Table
             doc.text("High Priority Threats", 14, startY + 60);
 
-            const tableRows = (data?.critical_threats || []).map(threat => [
-                threat?.timestamp?.split(' ')[1] || 'N/A', // Time only
-                threat?.source || threat?.src_ip || 'Unknown',
-                threat?.type || 'Unknown',
-                threat?.risk_score?.toString() || '0'
-            ]);
+            const tableRows = (data?.critical_threats || []).map(threat => {
+                let timeStr = 'N/A';
+                if (threat?.timestamp) {
+                    try {
+                        const d = new Date(threat.timestamp);
+                        timeStr = d.toLocaleTimeString();
+                    } catch(e) {
+                        timeStr = threat.timestamp.split(/[T ]/)[1] || 'N/A';
+                    }
+                }
+                return [
+                    timeStr,
+                    threat?.source || threat?.src_ip || 'Unknown',
+                    threat?.type || 'Unknown',
+                    threat?.risk_score?.toString() || '0'
+                ];
+            });
 
             autoTable(doc, {
                 startY: startY + 65,

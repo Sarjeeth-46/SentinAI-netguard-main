@@ -27,11 +27,25 @@ app.add_middleware(
 # Instrument Metrics
 Instrumentator().instrument(app).expose(app, endpoint="/api/metrics")
 
+import asyncio
+from app.api.api_gateway import monitor_database_health, process_telemetry_queue, broadcast_kpi_updates
+
 @app.on_event("startup")
 async def startup():
     logger.info("system_bootstrapping", title=config.API_TITLE, version=config.API_VERSION)
     await db.connect()
     ml_service.load_model()
+    
+    # Re-initialize queue inside the active event loop to prevent broken routing
+    import app.api.api_gateway as ag
+    ag.INGESTION_QUEUE = asyncio.Queue(maxsize=2000)
+    
+    # Start background ingestion and broadcasting tasks
+    global resiliency_task, queue_processor_task, kpi_broadcaster_task
+    resiliency_task = asyncio.create_task(ag.monitor_database_health())
+    queue_processor_task = asyncio.create_task(ag.process_telemetry_queue())
+    kpi_broadcaster_task = asyncio.create_task(ag.broadcast_kpi_updates())
+    logger.info("background_workers_started")
 
 @app.on_event("shutdown")
 async def shutdown():
@@ -42,4 +56,4 @@ async def shutdown():
 app.mount("/", api_router) # Since currently api_gateway declares an entire app instead of APIRouter, we mount it directly for compatibility, or refactor to APIRouter later.
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=config.DEBUG)
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=False)

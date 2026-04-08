@@ -336,7 +336,13 @@ async def inject_telemetry(request: Request, payload: List[LogEntryPayloadDTO]):
         if not event.get("id"):
             event["id"] = str(uuid.uuid4())
         if not event.get("timestamp"):
-            event["timestamp"] = datetime.now(timezone.utc).isoformat() + "Z"
+            event["timestamp"] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+        else:
+            from app.services.dashboard_aggregator import DashboardAggregator
+            try:
+                event["timestamp"] = DashboardAggregator._parse_ts(event["timestamp"]).isoformat()
+            except Exception:
+                pass
         
         # Enqueue for process_telemetry_queue
         try:
@@ -627,7 +633,13 @@ async def internal_notify(payload: NotifyEventDTO, request: Request):
     # Ensure Timestamp exists
     if "timestamp" not in event_data or not event_data["timestamp"]:
         from datetime import datetime, timezone
-        event_data["timestamp"] = datetime.now(timezone.utc).isoformat() + "Z"
+        event_data["timestamp"] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+    else:
+        from app.services.dashboard_aggregator import DashboardAggregator
+        try:
+            event_data["timestamp"] = DashboardAggregator._parse_ts(event_data["timestamp"]).isoformat()
+        except Exception:
+            pass
 
     # Push to queue to handle backpressure
     try:
@@ -666,34 +678,16 @@ async def process_telemetry_queue():
             QUEUE_DEPTH.set(INGESTION_QUEUE.qsize())
 
             try:
-                # ── Step 1: Correlation engine (mandatory) ───────────────────
-                from app.domain.correlation_service import correlation_engine
-                correlated_alert = correlation_engine.process_event(event_data)
-
-                if correlated_alert:
-                    # Correlated alert replaces independent alert for this event
-                    logger.info(
-                        "Correlated alert fired — suppressing independent alert",
-                        alert_id=correlated_alert["id"],
-                        source_ip=correlated_alert.get("source_ip"),
-                    )
-                    correlated_alert.setdefault("status", "Active")
-                    await db.save_event(correlated_alert)
-                    await manager.broadcast({"type": "CRITICAL_ALERT", "data": correlated_alert})
-                    PROCESSING_RATE.inc()
-
-                else:
-                    # ── Step 2: Independent ML / rule-based path ─────────────
-                    # sentinel_service mutates event_data in-place with enriched fields
-                    await threat_service.process_batch([event_data])
-                    # Ensure every stored event has a status field for queryability
-                    event_data.setdefault("status", "Active")
-                    # ── Step 3: Persist enriched event (single save) ──────────
-                    await db.save_event(event_data)
-                    PROCESSING_RATE.inc()
-                    # Broadcast the independently assessed event
-                    await manager.broadcast({"type": "THREAT_DETECTED", "data": event_data})
-                    logger.info("Pipeline complete for event", log_id=event_data.get("id"))
+                # sentinel_service logic deprecated, using threat_service
+                await threat_service.process_batch([event_data])
+                # Ensure every stored event has a status field for queryability
+                event_data.setdefault("status", "Active")
+                # ── Persist enriched event (single save) ──────────
+                await db.save_event(event_data)
+                PROCESSING_RATE.inc()
+                # Broadcast the independently assessed event
+                await manager.broadcast({"type": "THREAT_DETECTED", "data": event_data})
+                logger.info("Pipeline complete for event", log_id=event_data.get("id"))
 
             except Exception as exc:
                 logger.error(
