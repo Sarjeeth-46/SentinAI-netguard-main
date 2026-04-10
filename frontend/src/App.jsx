@@ -57,11 +57,32 @@ function App() {
 
   // Theme Management Side Effect
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
+    const applyTheme = (currentTheme) => {
+      let resolvedTheme = currentTheme;
+      if (currentTheme === 'system') {
+        resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', resolvedTheme);
+    };
+
+    applyTheme(theme);
+    localStorage.setItem('theme', theme);
+
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = () => applyTheme('system');
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
   }, [theme])
 
-  const toggleTheme = () => setTheme(curr => (curr === 'dark' ? 'light' : 'dark'))
+  const cycleTheme = () => {
+    setTheme(curr => {
+      if (curr === 'dark') return 'light';
+      if (curr === 'light') return 'system';
+      return 'dark';
+    });
+  }
 
   // --- Data Processing Layer ---
   const activeViewData = useMemo(() => {
@@ -95,7 +116,7 @@ function App() {
         criticalAlerts={criticalAlerts}
         wsStatus={wsStatus}
         actions={{
-          toggleTheme,
+          toggleTheme: cycleTheme,
           toggleRole,
           logout,
           openPasswordModal: () => setPasswordModalOpen(true),
@@ -111,8 +132,8 @@ function App() {
             style={{
               padding: '8px',
               borderRadius: '6px',
-              border: '1px solid var(--border)',
-              backgroundColor: 'var(--card-bg)',
+              border: '1px solid var(--border-subtle)',
+              backgroundColor: 'var(--bg-surface)',
               color: 'var(--text-primary)',
               fontFamily: 'inherit'
             }}
@@ -142,7 +163,7 @@ function App() {
               <h4 className="chart-title">Risk Levels</h4>
               <ResponsiveContainer>
                 <BarChart data={riskStats}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
                   <XAxis dataKey="name" stroke="var(--text-secondary)" fontSize={12} tick={{ fill: 'var(--text-secondary)' }} />
                   <YAxis stroke="var(--text-secondary)" fontSize={12} tick={{ fill: 'var(--text-secondary)' }} />
                   <Tooltip
@@ -150,7 +171,7 @@ function App() {
                     contentStyle={{ backgroundColor: 'var(--chart-tooltip-bg)', borderColor: 'var(--chart-tooltip-border)', color: 'var(--chart-tooltip-text)' }}
                     itemStyle={{ color: 'var(--chart-tooltip-text)' }}
                   />
-                  <Bar dataKey="value" fill="var(--accent)" name="Count" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                  <Bar dataKey="value" fill="var(--accent-primary)" name="Count" radius={[4, 4, 0, 0]} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -196,7 +217,10 @@ function App() {
         <IncidentModal
           threat={selectedIncident}
           onClose={() => setSelectedIncident(null)}
-          onResolve={actions.resolveThreat}
+          onResolve={async (id) => {
+            await actions.resolveThreat(id);
+            setSelectedIncident(null);
+          }}
         />
       )}
 

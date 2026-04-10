@@ -34,20 +34,20 @@ const NetworkTopology = () => {
 
     const getNodeIcon = (type) => {
         switch (type) {
-            case 'Firewall': return <Shield size={24} color="var(--accent)" />;
-            case 'Router': return <Router size={24} color="var(--warning)" />;
+            case 'Firewall': return <Shield size={24} color="var(--accent-primary)" />;
+            case 'Router': return <Router size={24} color="var(--status-warning)" />;
             case 'Switch': return <Server size={24} color="var(--text-secondary)" />;
-            case 'Database': return <Database size={24} color="var(--critical)" />;
-            case 'Server': return <Server size={24} color="var(--success)" />;
+            case 'Database': return <Database size={24} color="var(--status-danger)" />;
+            case 'Server': return <Server size={24} color="var(--status-success)" />;
             case 'Client': return <Monitor size={24} color="var(--text-primary)" />;
             default: return <Smartphone size={24} color="var(--text-primary)" />;
         }
     };
 
     const getStatusColor = (status) => {
-        if (status === 'Compromised') return 'var(--critical)';
-        if (status === 'Warning') return 'var(--warning)';
-        return 'var(--success)'; // Healthy
+        if (status === 'Compromised') return 'var(--status-danger)';
+        if (status === 'Warning') return 'var(--status-warning)';
+        return 'var(--status-success)'; // Healthy
     };
 
     if (loading) return <div className="card">Loading Topology...</div>;
@@ -61,7 +61,7 @@ const NetworkTopology = () => {
         width: '100vw',
         height: '100vh',
         zIndex: 9999,
-        background: 'var(--bg-color)', // Corrected from --bg-primary
+        background: 'var(--bg-primary)', // Corrected from --bg-primary
         padding: '20px',
         display: 'flex',
         gap: '20px',
@@ -90,7 +90,7 @@ const NetworkTopology = () => {
                     <svg width="100%" height="100%" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid meet">
                         <defs>
                             <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="32" refY="3.5" orient="auto">
-                                <polygon points="0 0, 10 3.5, 0 7" fill="var(--border)" />
+                                <polygon points="0 0, 10 3.5, 0 7" fill="var(--border-subtle)" />
                             </marker>
                         </defs>
                         {/* Links */}
@@ -110,7 +110,7 @@ const NetworkTopology = () => {
                                     key={i}
                                     x1={x1} y1={y1}
                                     x2={x2} y2={y2}
-                                    stroke="var(--border)"
+                                    stroke="var(--border-subtle)"
                                     strokeWidth="2"
                                     markerEnd="url(#arrowhead)"
                                 />
@@ -133,7 +133,7 @@ const NetworkTopology = () => {
                                 >
                                     {/* Pulse Effect for Compromised Nodes */}
                                     {isCompromised && (
-                                        <circle r="30" fill="var(--critical)" opacity="0.3">
+                                        <circle r="30" fill="var(--status-danger)" opacity="0.3">
                                             <animate attributeName="r" from="25" to="40" dur="1.5s" repeatCount="indefinite" />
                                             <animate attributeName="opacity" from="0.3" to="0" dur="1.5s" repeatCount="indefinite" />
                                         </circle>
@@ -142,7 +142,7 @@ const NetworkTopology = () => {
                                     {/* Main Node Body */}
                                     <circle
                                         r="25"
-                                        fill="var(--card-bg)"
+                                        fill="var(--bg-surface)"
                                         stroke={getStatusColor(node.status)}
                                         strokeWidth={isCompromised ? 3 : 2}
                                     />
@@ -155,7 +155,7 @@ const NetworkTopology = () => {
                                     {/* Threat Badge */}
                                     {node.threats > 0 && (
                                         <g transform="translate(18, -18)">
-                                            <circle r="8" fill="var(--critical)" stroke="var(--card-bg)" strokeWidth="1" />
+                                            <circle r="8" fill="var(--status-danger)" stroke="var(--bg-surface)" strokeWidth="1" />
                                             <text y="3" textAnchor="middle" fontSize="10" fill="white" fontWeight="bold">
                                                 {node.threats}
                                             </text>
@@ -182,9 +182,9 @@ const NetworkTopology = () => {
                 </div>
                 {/* Legend */}
                 <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--success)' }}></div> Healthy</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--warning)' }}></div> Warning</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--critical)' }}></div> Compromised</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--status-success)' }}></div> Healthy</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--status-warning)' }}></div> Warning</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--status-danger)' }}></div> Compromised</span>
                 </div>
             </div>
 
@@ -192,7 +192,7 @@ const NetworkTopology = () => {
             {selectedNode && (
                 <div style={{
                     width: '200px',
-                    borderLeft: '1px solid var(--border)',
+                    borderLeft: '1px solid var(--border-subtle)',
                     paddingLeft: '20px',
                     display: 'flex',
                     flexDirection: 'column',
@@ -236,10 +236,10 @@ const NetworkTopology = () => {
                         <div style={{
                             padding: '10px',
                             background: 'rgba(244, 63, 94, 0.1)',
-                            border: '1px solid var(--critical)',
+                            border: '1px solid var(--status-danger)',
                             borderRadius: '8px'
                         }}>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--critical)', fontWeight: 600, marginBottom: '4px' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--status-danger)', fontWeight: 600, marginBottom: '4px' }}>
                                 Active Threat
                             </div>
                             <div style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>

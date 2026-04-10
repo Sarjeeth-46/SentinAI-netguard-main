@@ -21,9 +21,10 @@ class IncidentLifecycleManager:
         ALL = 'All'
 
     @classmethod
-    async def retrieve_incident_feed(cls, limit: int = 500, lifecycle_state: Optional[str] = None, start_time: str = None, end_time: str = None) -> List[Dict]:
+    async def retrieve_incident_feed(cls, limit: int = 1000, lifecycle_state: Optional[str] = None, start_time: str = None, end_time: str = None) -> List[Dict]:
         """
         Fetches the operational event feed with optional state filtering and time range.
+        Limit increased to 1000 so the full day's threat history is visible in the table.
         """
         # Fetch raw telemetry from persistence layer
         if start_time and end_time:
@@ -65,26 +66,17 @@ class IncidentLifecycleManager:
         """
         Transitions an incident state from Active -> Resolved.
         """
-        # Retrieve full dataset to locate the record
-        # In a production SQL/NoSQL env, this would be `UPDATE ... WHERE id = ...`
-        dataset = await persistence_gateway.fetch_data(limit=None)
+        from app.core.config import config
         
-        target_record = None
-        mutation_occurred = False
+        db_handle = persistence_gateway.get_db()
+        if db_handle is None:
+            return None
+            
+        target_record = await db_handle[config.COLLECTION_NAME].find_one({"id": incident_id}, {"_id": 0})
         
-        for record in dataset:
-            if record.get('id') == incident_id:
-                # Apply State Transition
-                record['status'] = cls.Status.RESOLVED
-                target_record = record
-                mutation_occurred = True
-                break
-        
-        if mutation_occurred:
-            # BUG FIX: was `await persistence_gateway.save_fallback(dataset)` which only
-            # writes to the local JSON file, bypassing MongoDB. After a server restart (or
-            # in cloud mode) the event would reappear as Active.
-            # save_event() correctly upserts to MongoDB with local-JSON fallback.
+        if target_record:
+            # Apply State Transition
+            target_record['status'] = cls.Status.RESOLVED
             await persistence_gateway.save_event(target_record)
             return target_record
             

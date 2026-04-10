@@ -29,8 +29,8 @@ const TrafficTrendChart = ({ data }) => {
                 >
                     <defs>
                         <linearGradient id="colorRisk" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.8} />
-                            <stop offset="95%" stopColor="var(--accent)" stopOpacity={0} />
+                            <stop offset="5%" stopColor="var(--accent-primary)" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="var(--accent-primary)" stopOpacity={0} />
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
@@ -49,7 +49,7 @@ const TrafficTrendChart = ({ data }) => {
                     <Area
                         type="monotone"
                         dataKey="risk_score"
-                        stroke="var(--accent)"
+                        stroke="var(--accent-primary)"
                         fillOpacity={1}
                         fill="url(#colorRisk)"
                         isAnimationActive={false}

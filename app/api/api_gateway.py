@@ -156,13 +156,10 @@ async def add_security_headers_and_correlation_id(request: Request, call_next):
     structlog.contextvars.clear_contextvars()
     return response
 
-# Security Middleware (Strict CORS)
+# Security Middleware (CORS — origins from environment, not hardcoded)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173", "http://127.0.0.1:5173", 
-        "http://localhost:3000", "http://192.168.56.40"
-    ],
+    allow_origins=config.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-API-Key"],
@@ -224,7 +221,7 @@ async def api_bootstrap_system():
 
 # --- Authentication Endpoints ---
 @app.post("/api/auth/login", status_code=200)
-@limiter.limit("50/minute")
+@limiter.limit("10/minute")  # Tightened from 50/min — brute force protection
 async def authenticate_operator(request: Request, creds: CredentialsDTO):
     """Validates operator credentials and issues a session token."""
     token = await auth_service.authenticate_user(creds.username, creds.password)
@@ -241,9 +238,9 @@ async def authenticate_operator(request: Request, creds: CredentialsDTO):
         key="access_token",
         value=token,
         httponly=True,
-        max_age=3600*24,
-        samesite="lax",
-        secure=False  # True for HTTPS
+        max_age=3600 * 8,           # 8h session
+        samesite="strict",          # Stricter than "lax" for a SOC dashboard
+        secure=not config.DEBUG,    # True in production (HTTPS), False in local dev
     )
     return response
 
@@ -301,16 +298,60 @@ async def execute_mitigation(threat_id: str):
 
 
 # --- Telemetry Injection Endpoint (For Standalone Log Generator) ---
-# API Key Validation Default
-api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+import hmac
+import hashlib
 
-def verify_api_key(api_key: str = Depends(api_key_header)):
-    # Simple hardcoded key for requirement matching. In prod, fetch from environment.
-    expected_key = getattr(config, "TELEMETRY_API_KEY", "secure-telemetry-key-123")
-    if api_key != expected_key:
-        raise HTTPException(status_code=403, detail="Invalid API Key")
+seen_signatures = {}
 
-@app.post("/api/telemetry", status_code=201, dependencies=[Depends(verify_api_key)])
+async def verify_hmac_signature(request: Request):
+    # Enforce Network Restrictions
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    if client_ip not in config.ALLOWED_SHIPPER_IPS and "0.0.0.0" not in config.ALLOWED_SHIPPER_IPS:
+        logger.warning("Rejected telemetry from unauthorized IP", ip=client_ip)
+        raise HTTPException(status_code=401, detail="Unauthorized Shipper IP")
+
+    timestamp = request.headers.get("X-Timestamp")
+    signature = request.headers.get("X-Signature")
+    
+    if not timestamp or not signature:
+        logger.warning("Missing authentication headers", ip=client_ip)
+        raise HTTPException(status_code=401, detail="Missing authentication headers")
+        
+    try:
+        ts = float(timestamp)
+    except ValueError:
+        logger.warning("Invalid timestamp format", ip=client_ip)
+        raise HTTPException(status_code=401, detail="Invalid timestamp format")
+        
+    current_time = time.time()
+    if abs(current_time - ts) > 30:
+        logger.warning("Request expired (Replay protection)", ip=client_ip, ts=ts)
+        raise HTTPException(status_code=401, detail="Request expired")
+        
+    # Replay protection cache cleanup
+    keys_to_delete = [k for k, v in seen_signatures.items() if current_time - v > 30]
+    for k in keys_to_delete:
+        del seen_signatures[k]
+         
+    if signature in seen_signatures:
+        logger.warning("Replay attack detected (Signature seen)", ip=client_ip)
+        raise HTTPException(status_code=401, detail="Replay attack detected")
+        
+    # Read raw body safely
+    body = await request.body()
+    secret = config.TELEMETRY_SHARED_SECRET.encode()
+    
+    # Message = timestamp + payload
+    message = timestamp.encode() + body
+    expected_sig = hmac.new(secret, message, hashlib.sha256).hexdigest()
+    
+    if not hmac.compare_digest(expected_sig, signature):
+        logger.warning("Invalid HMAC signature", ip=client_ip)
+        raise HTTPException(status_code=401, detail="Unauthorized")
+        
+    seen_signatures[signature] = current_time
+
+@app.post("/api/telemetry", status_code=201, dependencies=[Depends(verify_hmac_signature)])
 @limiter.limit("1000/second")
 async def inject_telemetry(request: Request, payload: List[LogEntryPayloadDTO]):
     """

@@ -5,12 +5,15 @@ import random
 import time
 import uuid
 import sys
+import hmac
+import hashlib
+import json
 from datetime import datetime, timezone
 
 # --- CONFIGURATION ---
-# Export this in your Ubuntu terminal: export TARGET_API_URL=http://<YOUR_LOCAL_PUBLIC_IP_OR_NGROK>:8001/api/telemetry
-API_URL = os.getenv("TARGET_API_URL", "http://localhost:8001/api/telemetry")
-API_KEY = os.getenv("API_KEY", "secure-telemetry-key-123")
+# Export this in your Ubuntu terminal: export TARGET_API_URL=https://<YOUR_DOMAIN>:8001/api/telemetry
+API_URL = os.getenv("TARGET_API_URL", "https://localhost:8001/api/telemetry")
+SHARED_SECRET = os.getenv("TELEMETRY_SHARED_SECRET", "dev-hmac-shared-secret-1234567890")
 AWS_REGION = "us-east-1"
 EC2_INTERNAL_IP = "172.31.38.172"
 
@@ -95,9 +98,23 @@ def generate_log_entry():
     }
 
 async def send_logs(session, logs):
-    headers = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
+    if not API_URL.startswith("https://") and "localhost" not in API_URL and "127.0.0.1" not in API_URL:
+        print("[WARNING] API_URL does not use HTTPS. Production traffic must be encrypted!")
+
+    payload = json.dumps(logs)
+    timestamp = str(time.time())
+    
+    # Message = timestamp + payload
+    message = timestamp.encode() + payload.encode()
+    signature = hmac.new(SHARED_SECRET.encode(), message, hashlib.sha256).hexdigest()
+    
+    headers = {
+        "Content-Type": "application/json",
+        "X-Timestamp": timestamp,
+        "X-Signature": signature
+    }
     try:
-        async with session.post(API_URL, headers=headers, json=logs, timeout=5) as response:
+        async with session.post(API_URL, headers=headers, data=payload, timeout=5) as response:
             if response.status in [200, 201]:
                 data = await response.json()
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] [SUCCESS] {data.get('count', len(logs))} logs sent to {API_URL}")

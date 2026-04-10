@@ -12,7 +12,7 @@ import {
 
 const FeatureImportanceChart = ({ data }) => {
     // Deep Navy/Neon Theme Colors
-    const colors = ['#38BDF8', '#818CF8', '#C084FC']
+    const colors = ['var(--status-info)', 'var(--accent-primary)', 'var(--status-warning)']
 
     return (
         <div className="chart-wrapper">
@@ -24,7 +24,7 @@ const FeatureImportanceChart = ({ data }) => {
                         layout="vertical"
                         margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
                     >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#333" horizontal={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" horizontal={false} />
                         <XAxis type="number" stroke="var(--text-secondary)" fontSize={10} />
                         <YAxis
                             dataKey="feature"

@@ -50,7 +50,7 @@ const NotificationCenter = ({ alerts, onResolve }) => {
                             unsortedAlerts.map((alert) => (
                                 <div key={alert.id} className="notification-item critical">
                                     <div className="notif-icon">
-                                        <ShieldAlert size={16} color="#F43F5E" />
+                                        <ShieldAlert size={16} color="var(--status-danger)" />
                                     </div>
                                     <div className="notif-content">
                                         <div className="notif-top">

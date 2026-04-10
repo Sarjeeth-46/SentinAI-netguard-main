@@ -30,21 +30,21 @@ const ThreatMap = ({ theme, threats = [] }) => {
 
     // Theme Colors
     const isDark = theme === 'dark';
-    const baseColor = isDark ? "#21262d" : "#e5e7eb";
-    const hoverColor = isDark ? "#38BDF8" : "#0969DA";
-    const strokeColor = isDark ? "#30363D" : "#d1d5db";
-    const emptyColor = isDark ? "#161b22" : "#f3f4f6";
+    const baseColor = "var(--bg-elevated)";
+    const hoverColor = "var(--accent-primary)";
+    const strokeColor = "var(--border-subtle)";
+    const emptyColor = "var(--bg-surface)";
 
     // Debugging: Log data to see if we have matches
     // console.log("Geo Data:", data);
 
     const colorScale = scaleLinear()
         .domain([0, maxValue])
-        .range([emptyColor, "#F43F5E"]);
+        .range([emptyColor, "var(--status-danger)"]);
 
     return (
         <div className="card" style={{ minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
-            <h2><Globe size={20} color="var(--accent)" style={{ marginRight: '8px' }} /> Global Threat Origins</h2>
+            <h2><Globe size={20} color="var(--accent-primary)" style={{ marginRight: '8px' }} /> Global Threat Origins</h2>
             <div style={{ flex: 1, position: 'relative' }}>
                 <ComposableMap
                     projection="geoMercator"
@@ -84,17 +84,17 @@ const ThreatMap = ({ theme, threats = [] }) => {
                     position: 'absolute',
                     bottom: 20,
                     left: 20,
-                    background: 'var(--card-bg)',
+                    background: 'var(--bg-surface)',
                     padding: '10px',
                     borderRadius: '8px',
-                    border: '1px solid var(--border)',
+                    border: '1px solid var(--border-subtle)',
                     boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                 }}>
                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '5px' }}>Threat Intensity</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <div style={{ width: '10px', height: '10px', background: baseColor }}></div>
                         <span style={{ fontSize: '10px', color: 'var(--text-primary)' }}>Low</span>
-                        <div style={{ width: '40px', height: '4px', background: `linear-gradient(to right, ${baseColor}, #F43F5E)` }}></div>
+                        <div style={{ width: '40px', height: '4px', background: `linear-gradient(to right, ${baseColor}, var(--status-danger))` }}></div>
                         <span style={{ fontSize: '10px', color: 'var(--text-primary)' }}>High</span>
                     </div>
                 </div>

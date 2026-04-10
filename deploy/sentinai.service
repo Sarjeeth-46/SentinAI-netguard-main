@@ -1,0 +1,52 @@
+# =============================================================================
+# SentinAI NetGuard — Backend systemd Service
+# Install: sudo cp deploy/sentinai.service /etc/systemd/system/
+#          sudo systemctl daemon-reload && sudo systemctl enable --now sentinai.service
+# =============================================================================
+
+[Unit]
+Description=SentinAI NetGuard FastAPI Backend
+Documentation=https://github.com/your-org/SentinAI-netguard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=sentinai
+Group=sentinai
+WorkingDirectory=/opt/sentinai
+
+# Step 1: Pull secrets from AWS SSM Parameter Store and write .env.runtime
+# This script exits non-zero if required secrets are missing — prevents startup with bad config
+ExecStartPre=/opt/sentinai/scripts/fetch_secrets.sh
+
+# Step 2: Load the runtime env file (written by fetch_secrets.sh above)
+EnvironmentFile=/opt/sentinai/.env.runtime
+
+# Step 3: Start Gunicorn with UvicornWorker
+# main:app = the FastAPI application object defined in /opt/sentinai/main.py
+ExecStart=/opt/sentinai/venv/bin/gunicorn \
+    -c /opt/sentinai/deploy/gunicorn.conf.py \
+    main:app
+
+# ── Restart policy ────────────────────────────────────────────────────────────
+# Restart on any failure, with 5s delay.
+# Stop restarting after 5 consecutive failures in 120 seconds.
+Restart=on-failure
+RestartSec=5s
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+# ── Output ────────────────────────────────────────────────────────────────────
+# CloudWatch Agent reads these files (see cloudwatch-agent.json)
+StandardOutput=append:/var/log/sentinai/backend.log
+StandardError=append:/var/log/sentinai/backend_error.log
+
+# ── systemd Hardening ─────────────────────────────────────────────────────────
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/opt/sentinai /var/log/sentinai
+
+[Install]
+WantedBy=multi-user.target

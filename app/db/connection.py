@@ -19,17 +19,27 @@ class Database:
         try:
             self.client = AsyncIOMotorClient(config.MONGO_URI, serverSelectionTimeoutMS=5000)
             await self.client.admin.command('ismaster')
-            
+
             # Optimize read queries with index
             db_handle = self.client[config.DB_NAME]
             await db_handle[config.COLLECTION_NAME].create_index([("timestamp", -1)])
-            
-            self.redis = redis.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
-            await self.redis.ping()
-            
-            logger.info("database_connected", status="success")
+
+            logger.info("mongodb_connected", status="success")
         except Exception as e:
             logger.error("database_connection_failed", error=str(e))
+
+        # Redis is optional — falls back to in-memory rate-limiting on t2.micro
+        try:
+            self.redis = redis.Redis(
+                host=config.REDIS_HOST,
+                port=config.REDIS_PORT,
+                socket_connect_timeout=2,
+            )
+            await self.redis.ping()
+            logger.info("redis_connected", host=config.REDIS_HOST)
+        except Exception as e:
+            logger.warning("redis_unavailable_using_memory_fallback", error=str(e))
+            self.redis = None
 
     async def close(self):
         try:

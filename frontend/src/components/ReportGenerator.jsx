@@ -136,7 +136,7 @@ const ReportGenerator = ({ date }) => {
             style={{
                 display: 'flex', alignItems: 'center', gap: '8px',
                 padding: '8px 16px',
-                backgroundColor: 'var(--accent)',
+                backgroundColor: 'var(--accent-primary)',
                 color: 'white',
                 border: 'none', borderRadius: '6px',
                 cursor: 'pointer',

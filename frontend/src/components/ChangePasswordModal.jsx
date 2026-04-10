@@ -64,7 +64,7 @@ const ChangePasswordModal = ({ isOpen, onClose, username }) => {
                 </button>
 
                 <h2 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Lock size={20} color="var(--accent)" /> Change Password
+                    <Lock size={20} color="var(--accent-primary)" /> Change Password
                 </h2>
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -77,7 +77,7 @@ const ChangePasswordModal = ({ isOpen, onClose, username }) => {
                             required
                             style={{
                                 width: '100%', padding: '10px', borderRadius: '6px',
-                                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
+                                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-subtle)',
                                 color: 'var(--text-primary)', outline: 'none'
                             }}
                         />
@@ -91,7 +91,7 @@ const ChangePasswordModal = ({ isOpen, onClose, username }) => {
                             required
                             style={{
                                 width: '100%', padding: '10px', borderRadius: '6px',
-                                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
+                                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-subtle)',
                                 color: 'var(--text-primary)', outline: 'none'
                             }}
                         />
@@ -105,23 +105,23 @@ const ChangePasswordModal = ({ isOpen, onClose, username }) => {
                             required
                             style={{
                                 width: '100%', padding: '10px', borderRadius: '6px',
-                                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
+                                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-subtle)',
                                 color: 'var(--text-primary)', outline: 'none'
                             }}
                         />
                     </div>
 
-                    {error && <div style={{ color: 'var(--critical)', fontSize: '0.85rem' }}>{error}</div>}
-                    {success && <div style={{ color: 'var(--success)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '5px' }}><Check size={16} /> {success}</div>}
+                    {error && <div style={{ color: 'var(--status-danger)', fontSize: '0.85rem' }}>{error}</div>}
+                    {success && <div style={{ color: 'var(--status-success)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '5px' }}><Check size={16} /> {success}</div>}
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                         <button type="button" onClick={onClose} style={{
-                            padding: '8px 16px', borderRadius: '6px', border: '1px solid var(--border)',
+                            padding: '8px 16px', borderRadius: '6px', border: '1px solid var(--border-subtle)',
                             background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer'
                         }}>Cancel</button>
                         <button type="submit" disabled={loading} style={{
                             padding: '8px 16px', borderRadius: '6px', border: 'none',
-                            background: 'var(--accent)', color: 'white', fontWeight: 600, cursor: 'pointer',
+                            background: 'var(--accent-primary)', color: 'white', fontWeight: 600, cursor: 'pointer',
                             opacity: loading ? 0.7 : 1
                         }}>
                             {loading ? 'Updating...' : 'Update Password'}

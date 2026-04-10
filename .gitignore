@@ -1,13 +1,25 @@
 # Environment
 .env
+.env.*
 .venv
 __pycache__
 *.pyc
 
-# Large Model Artifacts (Exceeds GitHub size limits)
+# Model Artifacts (all locations — exceeds GitHub size limits)
+*.pkl
 backend/*.pkl
 backend/model_real.pkl
 backend/model.pkl
+
+# Log files (never commit logs — they contain IPs, stack traces, and usernames)
+*.log
+*.log.*
+backend.log
+backend_startup*.log
+error.log
+
+# Runtime secrets file written by fetch_secrets.sh
+.env.runtime
 
 # Temporary Data
 backend/threats.json
@@ -18,3 +30,9 @@ Training data/
 frontend/dist
 node_modules
 .vscode
+
+# QA / test output reports
+*.json
+!app/feature_importance.json
+!app/model_metrics.json
+!app/model_features.json

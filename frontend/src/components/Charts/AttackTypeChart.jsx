@@ -1,7 +1,7 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const COLORS = ['#38BDF8', '#F43F5E', '#D29922', '#2EA043', '#8B949E'];
+const COLORS = ['var(--status-info)', 'var(--status-danger)', 'var(--status-warning)', 'var(--status-success)', 'var(--text-secondary)'];
 
 const AttackTypeChart = ({ data }) => {
     return (
@@ -24,8 +24,9 @@ const AttackTypeChart = ({ data }) => {
                         ))}
                     </Pie>
                     <Tooltip
-                        contentStyle={{ backgroundColor: '#151B23', borderColor: '#30363D', color: '#F0F6FC' }}
-                        itemStyle={{ color: '#F0F6FC' }}
+                        cursor={{ fill: 'transparent' }}
+                        contentStyle={{ backgroundColor: 'var(--chart-tooltip-bg)', borderColor: 'var(--chart-tooltip-border)', color: 'var(--chart-tooltip-text)' }}
+                        itemStyle={{ color: 'var(--chart-tooltip-text)' }}
                     />
                     <Legend />
                 </PieChart>

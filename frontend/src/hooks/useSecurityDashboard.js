@@ -60,7 +60,7 @@ export const useSecurityDashboard = (isAuthenticated, dateFilter = null) => {
     // ────────────────────────────────────────────────────────────────────────
     const synchronizeTelemetry = useCallback(async (abortSignal) => {
         try {
-            // ── Step 1: Fetch unified overview (single source of truth) ──────
+            // ── Step 1: Fetch unified overview (single source of truth for KPIs) ──
             const overviewRes = await api.get('/dashboard/overview', { signal: abortSignal });
             const overview = overviewRes.data || {};
 
@@ -73,27 +73,26 @@ export const useSecurityDashboard = (isAuthenticated, dateFilter = null) => {
 
             if (!isMounted.current) return;
 
-            // Apply overview KPIs when no filter OR when today's UTC date is selected.
-            // The rolling 24h overview is the most accurate real-time source for today.
-            // Historical dates will have KPIs computed from the filtered threat list (Step 3).
-            const todayUtc = new Date().toISOString().slice(0, 10);
-            const isToday  = !dateFilter || dateFilter === todayUtc;
+            // FIX: Use local date (not UTC) for the isToday comparison.
+            // new Date().toISOString() gives UTC date, which can be a day behind in IST (+05:30).
+            // new Date().toLocaleDateString('en-CA') gives the local YYYY-MM-DD string.
+            const todayLocal = new Date().toLocaleDateString('en-CA'); // 'en-CA' = YYYY-MM-DD format
+            const isToday    = !dateFilter || dateFilter === todayLocal;
 
             if (isToday) {
-                // KPI card values derived from the SAME overview response
+                // KPI cards and chart data — always from the live overview
                 setTotalThreats(total_threats);
                 setHighRiskCount(risk_levels.critical ?? 0);
-
-                // Chart data derived from the SAME overview response
                 setRiskStats(riskLevelsToStats(risk_levels));
                 setAttackTypes(attackDistToArray(attack_type_distribution));
                 setTrendData(traffic_severity_trend);
             }
 
-            // ── Step 2: Fetch threat table ─────────────────────────────────────
-            // Skip when a historical dateFilter is active — Step 3 fetches filtered list.
-            // For today (isToday), fetch the unfiltered table so the list is always current.
+            // ── Step 2: Fetch the threat table ────────────────────────────────────
+            // This ALWAYS runs on mount/refresh regardless of date filter so the
+            // table is never empty after a page refresh.
             if (isToday) {
+                // Today: fetch all recent threats (no date filter) — gets live data
                 try {
                     const threatsRes = await api.get('/threats', { signal: abortSignal });
                     const threatList = threatsRes.data || [];
@@ -104,22 +103,26 @@ export const useSecurityDashboard = (isAuthenticated, dateFilter = null) => {
                     if (err.name === 'CanceledError' || err.name === 'AbortError') return;
                     console.warn('[Dashboard] Threat table fetch failed', err.message);
                 }
-            }
-
-            // ── Step 3: Apply date filter if set ─────────────────────────────
-            if (dateFilter) {
+            } else {
+                // ── Step 3: Historical date filter ───────────────────────────────
+                // The dateFilter is a local calendar date (YYYY-MM-DD).
+                // Build UTC boundaries that cover the full local day:
+                //   local 00:00 IST (+05:30) = previous-day 18:30 UTC
+                //   local 23:59 IST (+05:30) = same-day     18:29 UTC
+                // Using Date constructor with a bare "YYYY-MM-DD" string gives
+                // midnight LOCAL time, which we then convert to UTC for the query.
                 if (!/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
                     console.log(`[Dashboard] Ignoring incomplete date filter: ${dateFilter}`);
                     return;
                 }
                 console.log(`[Dashboard] Applying date filter for: ${dateFilter}`);
-                // Build UTC-aligned start/end by interpreting the local calendar
-                // date as whole-day UTC boundaries.  Events are stored in UTC so
-                // we must query for UTC midnight → next-day midnight.
-                const startUTC = new Date(`${dateFilter}T00:00:00Z`);
-                const endUTC   = new Date(`${dateFilter}T23:59:59Z`);
-                const start = startUTC.toISOString().replace('T', ' ').replace('Z', '+00:00');
-                const end   = endUTC.toISOString().replace('T', ' ').replace('Z', '+00:00');
+
+                // Midnight local time on the selected day
+                const startLocal = new Date(`${dateFilter}T00:00:00`);
+                const endLocal   = new Date(`${dateFilter}T23:59:59`);
+                const start = startLocal.toISOString().replace('T', ' ').replace('Z', '+00:00');
+                const end   = endLocal.toISOString().replace('T', ' ').replace('Z', '+00:00');
+
                 try {
                     const filteredRes = await api.get('/threats', {
                         params: { start_time: start, end_time: end },
@@ -130,35 +133,31 @@ export const useSecurityDashboard = (isAuthenticated, dateFilter = null) => {
                     setThreats(filteredThreats);
                     setCriticalAlerts(filteredThreats.filter(t => t.risk_score >= 80));
 
-                    // For historical dates only: re-compute KPIs from filtered data.
-                    // For today, the overview in Step 1 already set accurate KPIs — skip.
-                    if (!isToday) {
-                        const riskCounts  = { Critical: 0, High: 0, Medium: 0, Low: 0 };
-                        const typeCounts  = {};
+                    // Re-compute KPIs from filtered data for historical view
+                    const riskCounts = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+                    const typeCounts = {};
 
-                        filteredThreats.forEach(t => {
-                            const score = t.risk_score ?? 0;
-                            if      (score >= 80) riskCounts.Critical++;
-                            else if (score >= 60) riskCounts.High++;
-                            else if (score >= 30) riskCounts.Medium++;
-                            else                  riskCounts.Low++;
+                    filteredThreats.forEach(t => {
+                        const score = t.risk_score ?? 0;
+                        if      (score >= 80) riskCounts.Critical++;
+                        else if (score >= 60) riskCounts.High++;
+                        else if (score >= 30) riskCounts.Medium++;
+                        else                  riskCounts.Low++;
 
-                            const label = t.predicted_label || t.label || 'Unknown';
-                            typeCounts[label] = (typeCounts[label] || 0) + 1;
-                        });
+                        const label = t.predicted_label || t.label || 'Unknown';
+                        typeCounts[label] = (typeCounts[label] || 0) + 1;
+                    });
 
-                        setTotalThreats(filteredThreats.length);
-                        setHighRiskCount(riskCounts.Critical);
-                        setRiskStats(Object.entries(riskCounts).map(([name, value]) => ({ name, value })));
-                        setAttackTypes(Object.entries(typeCounts).map(([name, value]) => ({ name, value })));
+                    setTotalThreats(filteredThreats.length);
+                    setHighRiskCount(riskCounts.Critical);
+                    setRiskStats(Object.entries(riskCounts).map(([name, value]) => ({ name, value })));
+                    setAttackTypes(Object.entries(typeCounts).map(([name, value]) => ({ name, value })));
 
-                        const sorted = [...filteredThreats].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                        const historicalTrend = sorted.slice(-60).map(t => ({
-                            timestamp: t.timestamp,
-                            risk_score: t.risk_score || 0
-                        }));
-                        setTrendData(historicalTrend);
-                    }
+                    const sorted = [...filteredThreats].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    setTrendData(sorted.slice(-60).map(t => ({
+                        timestamp: t.timestamp,
+                        risk_score: t.risk_score || 0,
+                    })));
                 } catch (e) {
                     if (e.name === 'CanceledError' || e.name === 'AbortError') return;
                     console.error('[Dashboard] Filtered fetch failed', e);
@@ -166,7 +165,7 @@ export const useSecurityDashboard = (isAuthenticated, dateFilter = null) => {
                 }
             }
 
-            // ── Step 4: ML artifacts ──────────────────────────────────────────
+            // ── Step 4: ML artifacts ──────────────────────────────────────────────
             try {
                 const [metricsRes, featuresRes] = await Promise.all([
                     api.get('/model/metrics', { signal: abortSignal }),
@@ -278,13 +277,14 @@ export const useSecurityDashboard = (isAuthenticated, dateFilter = null) => {
                         message: `Active Threat Detected: ${threatLabel} from ${threat.source_ip}`,
                     });
                 } else if (message.type === 'SYSTEM_STATUS') {
-                    // NEW REAL-TIME EVENT STREAM
-                    const todayUtc = new Date().toISOString().slice(0, 10);
-                    if (dateFilterRef.current && dateFilterRef.current !== todayUtc) return; // Do not apply live overview KPIs if looking at historical date!
-                    
+                    // Live KPI stream — only apply when viewing today, not a historical date.
+                    // FIX: use local date (same as synchronizeTelemetry) not UTC date.
+                    const todayLocal = new Date().toLocaleDateString('en-CA');
+                    if (dateFilterRef.current && dateFilterRef.current !== todayLocal) return;
+
                     const overview = message.payload || {};
                     const { total_threats = 0, risk_levels = {}, attack_type_distribution = {}, traffic_severity_trend = [] } = overview;
-                    
+
                     setTotalThreats(total_threats);
                     setHighRiskCount(risk_levels.critical ?? 0);
                     setRiskStats(riskLevelsToStats(risk_levels));

@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ShieldAlert, Flame, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const ThreatTable = ({ data = [], filters = { type: 'All', risk: 'All' }, setFilters = {}, onRowAction = {}, userRole = 'Observer' }) => {
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+
+    // Reset to page 1 whenever the data set changes (filter change, refresh, WS update)
+    // Prevents "empty page" bug where page 2+ is selected but data shrank to fewer pages
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [data.length]);
 
     const totalPages = Math.ceil((data?.length || 0) / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -67,8 +73,8 @@ const ThreatTable = ({ data = [], filters = { type: 'All', risk: 'All' }, setFil
                                 <td>
                                     <span style={{
                                         padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600,
-                                        background: t.status === 'Resolved' ? 'rgba(46, 160, 67, 0.2)' : 'rgba(244, 63, 94, 0.2)',
-                                        color: t.status === 'Resolved' ? '#2EA043' : '#F43F5E'
+                                        background: t.status === 'Resolved' ? 'var(--bg-elevated)' : 'var(--critical-bg-subtle)',
+                                        color: t.status === 'Resolved' ? 'var(--status-success)' : 'var(--status-danger)'
                                     }}>
                                         {t.status || 'Active'}
                                     </span>
@@ -79,13 +85,13 @@ const ThreatTable = ({ data = [], filters = { type: 'All', risk: 'All' }, setFil
                                         {t.source_ip}
                                         {t.escalation_flag && (
                                             <span title="Repeat Offender: Risk Escalated">
-                                                <Flame size={14} color="#F43F5E" fill="#F43F5E" />
+                                                <Flame size={14} color="var(--status-danger)" fill="var(--status-danger)" />
                                             </span>
                                         )}
                                     </div>
                                 </td>
                                 <td>{t.destination_ip || t.dest_ip || '-'}</td>
-                                <td style={{ fontWeight: 'bold', color: t.predicted_label === 'Normal' ? 'var(--success)' : 'var(--text-primary)' }}>{t.predicted_label}</td>
+                                <td style={{ fontWeight: 'bold', color: t.predicted_label === 'Normal' ? 'var(--status-success)' : 'var(--text-primary)' }}>{t.predicted_label}</td>
                                 <td>{t.confidence ? (t.confidence * 100).toFixed(0) + '%' : 'N/A'}</td>
                                 <td className={`risk-score ${getRiskColor(t.risk_score)}`}>
                                     {t.risk_score} <span style={{ fontSize: '0.7em', opacity: 0.7 }}>
@@ -95,13 +101,13 @@ const ThreatTable = ({ data = [], filters = { type: 'All', risk: 'All' }, setFil
                                 <td>
                                     <div style={{ display: 'flex', gap: '8px' }}>
                                         <button onClick={() => onRowAction.view(t)} className="action-btn" style={{
-                                            color: '#38BDF8', borderColor: '#38BDF8'
+                                            color: 'var(--status-info)', borderColor: 'var(--status-info)'
                                         }}>
                                             <Eye size={12} /> View
                                         </button>
                                         {userRole === 'SOC Analyst' && t.status !== 'Resolved' && (
                                             <button onClick={() => onRowAction.block(t.id, t.source_ip)} className="action-btn" style={{
-                                                color: '#F43F5E', borderColor: '#F43F5E'
+                                                color: 'var(--status-danger)', borderColor: 'var(--status-danger)'
                                             }}>
                                                 <ShieldAlert size={12} /> Block
                                             </button>
@@ -129,7 +135,7 @@ const ThreatTable = ({ data = [], filters = { type: 'All', risk: 'All' }, setFil
                     padding: '10px 0',
                     gap: '15px',
                     marginTop: '10px',
-                    borderTop: '1px solid var(--border)'
+                    borderTop: '1px solid var(--border-subtle)'
                 }}>
                     <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                         Page {currentPage} of {totalPages}

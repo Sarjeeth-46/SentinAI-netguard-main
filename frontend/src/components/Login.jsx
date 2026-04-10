@@ -25,12 +25,12 @@ const Login = ({ onLogin }) => {
             justifyContent: 'center',
             alignItems: 'center',
             height: '100vh',
-            background: 'var(--bg-color)',
+            background: 'var(--bg-primary)',
             color: 'var(--text-primary)'
         }}>
             <div className="card" style={{ width: '350px', textAlign: 'center' }}>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                    <ShieldCheck size={48} color="var(--accent)" />
+                    <ShieldCheck size={48} color="var(--accent-primary)" />
                 </div>
                 <h2 style={{ justifyContent: 'center', border: 'none' }}>System Login</h2>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>NetGuard Secure Access</p>
@@ -42,8 +42,8 @@ const Login = ({ onLogin }) => {
                         value={username}
                         onChange={e => setUsername(e.target.value)}
                         style={{
-                            background: 'var(--card-bg)',
-                            border: '1px solid var(--border)',
+                            background: 'var(--bg-surface)',
+                            border: '1px solid var(--border-subtle)',
                             color: 'var(--text-primary)',
                             padding: '12px',
                             borderRadius: '6px',
@@ -56,8 +56,8 @@ const Login = ({ onLogin }) => {
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         style={{
-                            background: 'var(--card-bg)',
-                            border: '1px solid var(--border)',
+                            background: 'var(--bg-surface)',
+                            border: '1px solid var(--border-subtle)',
                             color: 'var(--text-primary)',
                             padding: '12px',
                             borderRadius: '6px',
@@ -65,11 +65,11 @@ const Login = ({ onLogin }) => {
                         }}
                     />
 
-                    {error && <p style={{ color: 'var(--critical)', fontSize: '0.85rem' }}>{error}</p>}
+                    {error && <p style={{ color: 'var(--status-danger)', fontSize: '0.85rem' }}>{error}</p>}
 
                     <button type="submit" disabled={isLoading} style={{
-                        background: isLoading ? 'var(--text-secondary)' : 'var(--accent)',
-                        color: '#fff',
+                        background: isLoading ? 'var(--text-secondary)' : 'var(--accent-primary)',
+                        color: 'var(--text-primary)',
                         border: 'none',
                         padding: '12px',
                         borderRadius: '6px',

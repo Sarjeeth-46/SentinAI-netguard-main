@@ -1,0 +1,42 @@
+# =============================================================================
+# SentinAI Log Shipper — systemd Service
+# Replaces: nohup python3 ec2_log_shipper.py &  (volatile, no auto-restart)
+# Install:  sudo cp deploy/sentinai-shipper.service /etc/systemd/system/
+#           sudo systemctl daemon-reload && sudo systemctl enable --now sentinai-shipper.service
+# =============================================================================
+
+[Unit]
+Description=SentinAI EC2 Log Shipper (Synthetic Telemetry Generator)
+Documentation=https://github.com/your-org/SentinAI-netguard
+After=network-online.target sentinai.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=sentinai
+Group=sentinai
+WorkingDirectory=/opt/sentinai
+
+# Loads the same runtime env as the backend (TELEMETRY_API_KEY, etc.)
+EnvironmentFile=/opt/sentinai/.env.runtime
+
+# Override API URL to target HTTPS (not localhost — shipper runs as separate process)
+Environment="TARGET_API_URL=https://api.yourdomain.com/api/telemetry"
+
+# Run the shipper: args are min_interval(s), max_interval(s), batch_size
+ExecStart=/opt/sentinai/venv/bin/python3 deploy/ec2_log_shipper.py 4 7 5
+
+# ── Restart on failure with 15s cooldown ─────────────────────────────────────
+# The retry logic inside ec2_log_shipper.py handles transient backend failures.
+# systemd handles process-level crashes or startup failures.
+Restart=on-failure
+RestartSec=15s
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+# ── Output ────────────────────────────────────────────────────────────────────
+StandardOutput=append:/var/log/sentinai/shipper.log
+StandardError=append:/var/log/sentinai/shipper_error.log
+
+[Install]
+WantedBy=multi-user.target

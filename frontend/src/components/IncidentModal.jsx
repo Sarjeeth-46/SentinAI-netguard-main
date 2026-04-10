@@ -17,10 +17,10 @@ const IncidentModal = ({ threat, onClose, onResolve }) => {
     if (!threat) return null;
 
     const getRiskColor = (score) => {
-        if (score >= 80) return '#fa1f02ff';
-        if (score >= 60) return '#F97316';
-        if (score >= 30) return '#EAB308';
-        return '#22C55E';
+        if (score >= 80) return 'var(--status-danger)';
+        if (score >= 60) return 'var(--status-warning)';
+        if (score >= 30) return 'var(--status-warning)';
+        return 'var(--status-success)';
     };
 
     const riskColor = getRiskColor(threat.risk_score);
@@ -34,7 +34,7 @@ const IncidentModal = ({ threat, onClose, onResolve }) => {
             backdropFilter: 'blur(4px)'
         }}>
             <div ref={modalRef} style={{
-                background: 'var(--card-bg)',
+                background: 'var(--bg-surface)',
                 border: `1px solid ${riskColor}`,
                 borderRadius: '12px',
                 width: '600px',
@@ -45,7 +45,7 @@ const IncidentModal = ({ threat, onClose, onResolve }) => {
                 {/* Header */}
                 <div style={{
                     padding: '20px 24px',
-                    borderBottom: '1px solid var(--border)',
+                    borderBottom: '1px solid var(--border-subtle)',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     background: `linear-gradient(to right, ${riskColor}15, transparent)`
                 }}>
@@ -79,7 +79,7 @@ const IncidentModal = ({ threat, onClose, onResolve }) => {
                         </div>
                     </div>
 
-                    <div style={{ background: 'rgba(0,0,0,0.1)', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid var(--border)' }}>
+                    <div style={{ background: 'rgba(0,0,0,0.1)', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid var(--border-subtle)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                             <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>AI Confidence</span>
                             <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{(threat.attack_probability * 100).toFixed(1)}%</span>
@@ -93,7 +93,7 @@ const IncidentModal = ({ threat, onClose, onResolve }) => {
                     {/* Recommended Action */}
                     <div style={{ marginBottom: '24px' }}>
                         <h4 style={{ color: 'var(--text-primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Activity size={16} color="var(--accent)" /> Recommended Action
+                            <Activity size={16} color="var(--accent-primary)" /> Recommended Action
                         </h4>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.5' }}>
                             {threat.predicted_label === 'DDoS' ? 'Initiate traffic throttling on source IP and verify upstream filters.' :
@@ -105,15 +105,15 @@ const IncidentModal = ({ threat, onClose, onResolve }) => {
 
                     {/* Status Badge */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                        <span style={{ color: '#8B949E' }}>Status:</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>Status:</span>
                         <span style={{
                             padding: '4px 12px',
                             borderRadius: '12px',
                             fontSize: '0.85rem',
                             fontWeight: 600,
-                            background: threat.status === 'Resolved' ? 'rgba(46, 160, 67, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-                            color: threat.status === 'Resolved' ? '#2EA043' : '#F43F5E',
-                            border: `1px solid ${threat.status === 'Resolved' ? '#2EA043' : '#F43F5E'}`
+                            background: threat.status === 'Resolved' ? 'var(--status-success)' : 'var(--status-danger)',
+                            color: threat.status === 'Resolved' ? '#2EA043' : 'var(--status-danger)',
+                            border: `1px solid ${threat.status === 'Resolved' ? '#2EA043' : 'var(--status-danger)'}`
                         }}>
                             {threat.status || 'Active'}
                         </span>
@@ -123,12 +123,12 @@ const IncidentModal = ({ threat, onClose, onResolve }) => {
                 {/* Footer */}
                 <div style={{
                     padding: '20px 24px',
-                    borderTop: '1px solid var(--border)',
+                    borderTop: '1px solid var(--border-subtle)',
                     display: 'flex', justifyContent: 'flex-end', gap: '12px',
-                    background: 'var(--card-bg)'
+                    background: 'var(--bg-surface)'
                 }}>
                     <button onClick={onClose} style={{
-                        padding: '8px 16px', borderRadius: '6px', border: '1px solid var(--border)',
+                        padding: '8px 16px', borderRadius: '6px', border: '1px solid var(--border-subtle)',
                         background: 'none', color: 'var(--text-primary)', cursor: 'pointer'
                     }}>
                         Close
@@ -137,7 +137,7 @@ const IncidentModal = ({ threat, onClose, onResolve }) => {
                     {threat.status !== 'Resolved' && (
                         <button onClick={() => onResolve(threat.id)} style={{
                             padding: '8px 16px', borderRadius: '6px', border: 'none',
-                            background: 'var(--success)', color: '#FFFFFF', fontWeight: 600,
+                            background: 'var(--status-success)', color: '#FFFFFF', fontWeight: 600,
                             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
                         }}>
                             <CheckCircle size={16} /> Mark as Resolved

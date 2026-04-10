@@ -1,61 +1,77 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
-:root {
+:root, [data-theme='dark'] {
   /* Dark Theme (Default) */
-  --bg-color: #0B1015;
-  --card-bg: #151B23;
-  --text-primary: #F0F6FC;
-  --text-secondary: #8B949E;
-  --accent: #38BDF8;
-  --accent-glow: rgba(56, 189, 248, 0.15);
-  --border: #30363D;
-  --success: #2EA043;
-  --warning: #D29922;
-  --critical: #F43F5E;
-  --error: #F85149;
+  --bg-primary: #0A0F1C;
+  --bg-surface: #111827;
+  --bg-elevated: #1F2937;
 
-  /* Chart Colors */
-  --chart-grid: #333;
-  --chart-tooltip-bg: #151B23;
-  --chart-tooltip-border: #30363D;
-  --chart-tooltip-text: #F0F6FC;
+  --text-primary: #E6EDF3;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
 
-  --critical-bg-subtle: rgba(244, 63, 94, 0.15);
+  --accent-primary: #6366F1;
+  --accent-glow: #22D3EE;
+
+  --status-success: #22C55E;
+  --status-warning: #F59E0B;
+  --status-danger: #EF4444;
+  --status-info: #38BDF8;
+
+  --border-subtle: rgba(255, 255, 255, 0.05);
+
+  --chart-tooltip-bg: var(--bg-elevated);
+  --chart-tooltip-border: var(--border-subtle);
+  --chart-tooltip-text: var(--text-primary);
+  --chart-grid: rgba(255, 255, 255, 0.05);
+
+  --critical-bg-subtle: rgba(239, 68, 68, 0.15);
 }
 
 [data-theme='light'] {
-  --bg-color: #F6F8FA;
-  /* Light Gray Background */
-  --card-bg: #FFFFFF;
-  /* White Cards */
-  --text-primary: #24292F;
-  /* Dark Text */
-  --text-secondary: #57606A;
-  --accent: #0969DA;
-  /* Standard Blue */
-  --accent-glow: rgba(9, 105, 218, 0.1);
-  --border: #D0D7DE;
-  --success: #1A7F37;
-  --warning: #9A6700;
-  --critical: #CF222E;
-  --error: #CF222E;
+  /* Light Theme */
+  --bg-primary: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
 
-  /* Chart Colors */
-  --chart-grid: #E1E4E8;
-  --chart-tooltip-bg: #FFFFFF;
-  --chart-tooltip-border: #D0D7DE;
-  --chart-tooltip-text: #24292F;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
 
-  --critical-bg-subtle: rgba(207, 34, 46, 0.08);
-  /* More subtle for light mode */
+  --accent-primary: #4F46E5;
+  --accent-glow: #06B6D4;
+
+  --status-success: #16A34A;
+  --status-warning: #D97706;
+  --status-danger: #DC2626;
+  --status-info: #0284C7;
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+
+  --chart-tooltip-bg: var(--bg-surface);
+  --chart-tooltip-border: var(--border-subtle);
+  --chart-tooltip-text: var(--text-primary);
+  --chart-grid: rgba(0, 0, 0, 0.08);
+
+  --critical-bg-subtle: rgba(220, 38, 38, 0.08);
 }
 
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-color);
+  background-color: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .app-container {
@@ -71,7 +87,7 @@ body {
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .logo {
@@ -91,11 +107,11 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(0, 210, 255, 0.1);
-  color: var(--accent);
+  background: var(--bg-elevated);
+  color: var(--accent-primary);
   padding: 6px 12px;
   border-radius: 20px;
-  border: 1px solid rgba(0, 210, 255, 0.3);
+  border: 1px solid var(--border-subtle);
   font-size: 0.85rem;
   font-weight: 600;
 }
@@ -118,18 +134,17 @@ body {
 }
 
 .card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15); /* Soft glow with accent.primary */
+  border-color: var(--accent-primary);
 }
 
 .card h2 {
@@ -138,7 +153,7 @@ body {
   align-items: center;
   gap: 10px;
   font-size: 1.1rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 16px;
   margin-bottom: 20px;
 }
@@ -157,7 +172,7 @@ th,
 td {
   padding: 12px 16px;
   text-align: left;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 th {
@@ -169,7 +184,7 @@ th {
 }
 
 tr:hover {
-  background: var(--hover-bg);
+  background: var(--bg-elevated);
 }
 
 .risk-score {
@@ -177,20 +192,19 @@ tr:hover {
 }
 
 .text-red-500 {
-  color: var(--critical);
+  color: var(--status-danger);
 }
 
 .text-orange-500 {
-  color: var(--warning);
-  /* Will use warning color */
+  color: var(--status-warning);
 }
 
 .text-yellow-500 {
-  color: var(--warning);
+  color: var(--status-warning);
 }
 
 .text-green-500 {
-  color: var(--success);
+  color: var(--status-success);
 }
 
 .critical-row {
@@ -206,14 +220,19 @@ tr:hover {
 }
 
 .kpi-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.1);
 }
 
 .kpi-icon {
@@ -259,7 +278,7 @@ tr:hover {
 
 .metric-val {
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-primary);
 }
 
 /* Scrollbar */
@@ -269,11 +288,11 @@ tr:hover {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-color);
+  background: var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: var(--bg-elevated);
   border-radius: 4px;
 }
 
@@ -297,7 +316,7 @@ tr:hover {
   height: 350px;
   /* Increased height to prevent overlap */
   background: rgba(255, 255, 255, 0.01);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
   padding: 15px;
   position: relative;
@@ -309,7 +328,7 @@ tr:hover {
 .chart-title {
   text-align: center;
   margin-bottom: 10px;
-  color: var(--accent);
+  color: var(--accent-primary);
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -338,7 +357,7 @@ tr:hover {
 .risk-bar-bg {
   width: 100%;
   height: 6px;
-  background: #333;
+  background: var(--bg-elevated);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -351,8 +370,8 @@ tr:hover {
 /* Alert Banner */
 .alert-banner {
   background: rgba(244, 63, 94, 0.1);
-  border: 1px solid var(--critical);
-  color: var(--critical);
+  border: 1px solid var(--status-danger);
+  color: var(--status-danger);
   margin-bottom: 20px;
   border-radius: 8px;
   overflow: hidden;
@@ -435,7 +454,7 @@ tr:hover {
 }
 
 .resolve-btn-mini {
-  background: var(--critical);
+  background: var(--status-danger);
   color: white;
   border: none;
   padding: 4px 10px;
@@ -452,9 +471,9 @@ tr:hover {
 
 /* Filters */
 .filter-select {
-  background: var(--card-bg);
+  background: var(--bg-surface);
   color: var(--text-primary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   padding: 6px 12px;
   border-radius: 6px;
   font-family: inherit;
@@ -464,7 +483,7 @@ tr:hover {
 
 .filter-select:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--accent-primary);
 }
 
 /* Topology */
@@ -478,7 +497,7 @@ tr:hover {
 
 .topology-node:hover {
   transform: scale(1.1);
-  border-color: var(--accent) !important;
+  border-color: var(--accent-primary) !important;
   cursor: pointer;
 }
 
@@ -502,7 +521,7 @@ tr:hover {
   align-items: center;
   gap: 8px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -563,7 +582,7 @@ tr:hover {
   position: absolute;
   top: 0;
   right: 0;
-  background: var(--critical);
+  background: var(--status-danger);
   color: white;
   font-size: 0.65rem;
   font-weight: 700;
@@ -573,7 +592,7 @@ tr:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--card-bg);
+  border: 2px solid var(--bg-surface);
 }
 
 .notification-dropdown {
@@ -582,8 +601,8 @@ tr:hover {
   right: 0;
   margin-top: 10px;
   width: 380px;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   z-index: 100;
@@ -605,7 +624,7 @@ tr:hover {
 
 .notification-header {
   padding: 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -655,7 +674,7 @@ tr:hover {
 }
 
 .notification-item.critical {
-  border-left: 3px solid var(--critical);
+  border-left: 3px solid var(--status-danger);
   background: linear-gradient(to right, rgba(244, 63, 94, 0.05), transparent);
 }
 
@@ -693,7 +712,7 @@ tr:hover {
 .resolve-btn-text {
   background: none;
   border: none;
-  color: var(--accent);
+  color: var(--accent-primary);
   font-size: 0.8rem;
   font-weight: 500;
   padding: 0;

@@ -25,12 +25,12 @@ const Toast = ({ message, type = 'info', onClose }) => {
                 position: 'fixed',
                 bottom: '30px',
                 right: '30px',
-                background: 'var(--card-bg)',
+                background: 'var(--bg-surface)',
                 color: 'var(--text-primary)',
                 padding: '16px 24px',
                 borderRadius: '8px',
-                border: `1px solid ${isCritical ? 'var(--critical)' : 'var(--accent)'}`,
-                boxShadow: `0 4px 12px ${isCritical ? 'rgba(244, 63, 94, 0.3)' : 'rgba(56, 189, 248, 0.2)'}`,
+                border: `1px solid ${isCritical ? 'var(--status-danger)' : 'var(--accent-primary)'}`,
+                boxShadow: isCritical ? '0 4px 12px rgba(244, 63, 94, 0.3)' : '0 4px 12px rgba(56, 189, 248, 0.2)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
@@ -43,7 +43,7 @@ const Toast = ({ message, type = 'info', onClose }) => {
         >
             <div
                 style={{
-                    background: isCritical ? 'rgba(244, 63, 94, 0.15)' : 'rgba(56, 189, 248, 0.15)',
+                    background: isCritical ? 'var(--critical-bg-subtle)' : 'var(--bg-elevated)',
                     padding: '8px',
                     borderRadius: '50%',
                     display: 'flex',
@@ -51,11 +51,11 @@ const Toast = ({ message, type = 'info', onClose }) => {
                     justifyContent: 'center'
                 }}
             >
-                <AlertTriangle size={20} color={isCritical ? 'var(--critical)' : 'var(--accent)'} />
+                <AlertTriangle size={20} color={isCritical ? 'var(--status-danger)' : 'var(--accent-primary)'} />
             </div>
 
             <div style={{ flex: 1 }}>
-                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: isCritical ? 'var(--critical)' : 'var(--accent)' }}>
+                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: isCritical ? 'var(--status-danger)' : 'var(--accent-primary)' }}>
                     {isCritical ? 'CRITICAL THREAT DETECTED' : 'System Alert'}
                 </h4>
                 <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
