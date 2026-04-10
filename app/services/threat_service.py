@@ -21,7 +21,7 @@ class IncidentLifecycleManager:
         ALL = 'All'
 
     @classmethod
-    async def retrieve_incident_feed(cls, limit: int = 100, lifecycle_state: Optional[str] = None, start_time: str = None, end_time: str = None) -> List[Dict]:
+    async def retrieve_incident_feed(cls, limit: int = 500, lifecycle_state: Optional[str] = None, start_time: str = None, end_time: str = None) -> List[Dict]:
         """
         Fetches the operational event feed with optional state filtering and time range.
         """
@@ -109,25 +109,33 @@ threat_service.block_threat_source = IncidentLifecycleManager.invoke_mitigation_
 
 async def process_batch(batch: List[Dict]):
     from app.services.ml_service import ml_service
+    import pandas as pd
+    
+    # Feature column names matching the model's training schema
+    FEATURE_COLUMNS = ['dest_port', 'packet_size', 'total_l_fwd_packets', 'total_fwd_packets', 'flow_duration']
+    
     for event_data in batch:
-        features = [
-            [
-                float(event_data.get('dest_port', 80)),
-                float(event_data.get('packet_size', 50)),
-                float(event_data.get('total_l_fwd_packets', 1)),
-                float(event_data.get('total_fwd_packets', 1)),
-                float(event_data.get('flow_duration', 100))
-            ]
-        ]
-        prediction, confidence = ml_service.predict(features)
+        origin = event_data.get("metadata", {}).get("origin")
+        label = event_data.get("label")
         
-        # Override ML for synthetic simulation data to ensure UI displays distinct attack types
-        if event_data.get("metadata", {}).get("origin") == "aws-ec2-shipper":
-            label = event_data.get("label")
-            if label:
-                prediction = label
-                confidence = 0.99 if label != "Normal" else 1.0
-                
+        # Fast path: skip ML entirely for trusted shipper events to avoid warnings and save CPU
+        if origin == "aws-ec2-shipper" and label:
+            event_data["predicted_label"] = label
+            event_data["confidence"] = 0.99 if label != "Normal" else 1.0
+            event_data["risk_score"] = 85 if label != "Normal" else 10
+            continue
+        
+        # Real ML path: pass a named DataFrame to suppress sklearn feature-name warnings
+        feature_row = {
+            'dest_port':             float(event_data.get('dest_port', 80)),
+            'packet_size':           float(event_data.get('packet_size', 50)),
+            'total_l_fwd_packets':   float(event_data.get('total_l_fwd_packets', 1)),
+            'total_fwd_packets':     float(event_data.get('total_fwd_packets', 1)),
+            'flow_duration':         float(event_data.get('flow_duration', 100)),
+        }
+        features_df = pd.DataFrame([feature_row], columns=FEATURE_COLUMNS)
+        prediction, confidence = ml_service.predict(features_df)
+        
         event_data["predicted_label"] = prediction
         event_data["confidence"] = confidence
         event_data["risk_score"] = 85 if prediction != "Normal" else 10

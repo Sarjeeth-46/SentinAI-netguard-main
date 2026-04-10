@@ -262,7 +262,7 @@ export const useSecurityDashboard = (isAuthenticated, dateFilter = null) => {
                     // Optimistically update threat table & list only (KPIs handled by SYSTEM_STATUS stream now)
                     setThreats(prev => {
                         if (prev.some(t => t.id === threat.id)) return prev;
-                        return [threat, ...prev].slice(0, 100);
+                        return [threat, ...prev].slice(0, 500);
                     }); // Cap at 100 for memory safety
 
                     if (threat.risk_score >= 80) {
